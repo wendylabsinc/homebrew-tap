@@ -1,8 +1,8 @@
 class Edge < Formula
   desc "CLI for building and running Edge applications"
   homepage "https://github.com/apache-edge/edge-agent"
-  url "https://github.com/apache-edge/edge-agent/archive/refs/tags/v2025.04.12-193010.tar.gz"
-  sha256 "114af1f32d0cc7338dc4e85f2462f1fb4fcb6066e54ec2ff48e78040734fa262"
+  url "https://github.com/apache-edge/edge-agent/archive/refs/tags/v2025.04.16-151540.tar.gz"
+  sha256 "8d92da8fa23bc8cba0277f04f4dee463dd35f90ff7476d5df1bd041805502a60"
   license "Apache-2.0"
 
   depends_on xcode: ["16.3", :build]
@@ -15,6 +15,7 @@ class Edge < Formula
       ["--static-swift-stdlib"]
     end
 
+    system "./Scripts/inject-version.sh", "#{version}"
     system "swift", "build", *args, "-c", "release", "--product", "edge"
 
     bin.install ".build/release/edge"
