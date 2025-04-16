@@ -4,6 +4,7 @@ class Edge < Formula
   url "https://github.com/apache-edge/edge-agent/archive/refs/tags/v2025.04.16-151540.tar.gz"
   sha256 "8d92da8fa23bc8cba0277f04f4dee463dd35f90ff7476d5df1bd041805502a60"
   license "Apache-2.0"
+  head "https://github.com/apache-edge/edge-agent.git", branch: "main"
 
   depends_on xcode: ["16.3", :build]
   uses_from_macos "swift" => :build
