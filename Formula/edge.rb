@@ -1,8 +1,5 @@
-# Documentation: https://docs.brew.sh/Formula-Cookbook
-#                https://rubydoc.brew.sh/Formula
-# PLEASE REMOVE ALL GENERATED COMMENTS BEFORE SUBMITTING YOUR PULL REQUEST!
 class Edge < Formula
-  desc ""
+  desc "Edge CLI"
   homepage "https://github.com/apache-edge/edge-agent"
   url "https://github.com/apache-edge/edge-agent/archive/refs/tags/v2025.04.12-193010.tar.gz"
   sha256 "114af1f32d0cc7338dc4e85f2462f1fb4fcb6066e54ec2ff48e78040734fa262"
