@@ -16,7 +16,7 @@ class Edge < Formula
       ["--static-swift-stdlib"]
     end
 
-    system "./Scripts/inject-version.sh", "#{version}"
+    system "./Scripts/inject-version.sh", version.to_s
     system "swift", "build", *args, "-c", "release", "--product", "edge"
 
     bin.install ".build/release/edge"
