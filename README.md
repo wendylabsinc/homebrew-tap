@@ -1,15 +1,15 @@
-# Apache-edge Tap
+# edgeengineer Tap
 
 ## How do I install these formulae?
 
-`brew install apache-edge/tap/<formula>`
+`brew install edgeengineer/tap/<formula>`
 
-Or `brew tap apache-edge/tap` and then `brew install <formula>`.
+Or `brew tap edgeengineer/tap` and then `brew install <formula>`.
 
 Or, in a `brew bundle` `Brewfile`:
 
 ```ruby
-tap "apache-edge/tap"
+tap "edgeengineer/tap"
 brew "<formula>"
 ```
 
