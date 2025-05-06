@@ -21,6 +21,8 @@ class Edge < Formula
 
     bin.install ".build/release/edge"
     # TODO: install resources, see: https://github.com/swiftlang/swift-package-manager/issues/8510
+    prefix.install ".build/release/edge-agent_edge.bundle"
+    (bin/"edge-agent_edge.bundle").install_symlink prefix/"edge-agent_edge.bundle"
   end
 
   test do
