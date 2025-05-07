@@ -21,9 +21,8 @@ class Edge < Formula
 
     bin.install ".build/release/edge"
     # TODO: install resources, see: https://github.com/swiftlang/swift-package-manager/issues/8510
-    
-    # Install the bundle directly to bin instead of creating a nested symlink structure
-    bin.install ".build/release/edge-agent_edge.bundle"
+    prefix.install ".build/release/edge-agent_edge.bundle"
+    bin.install_symlink prefix/"edge-agent_edge.bundle"
   end
 
   test do
