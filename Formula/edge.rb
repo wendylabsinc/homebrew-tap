@@ -1,8 +1,8 @@
 class Edge < Formula
   desc "CLI for building and running Edge applications"
   homepage "https://github.com/edgeengineer/edge-agent"
-  url "https://github.com/edgeengineer/edge-agent/archive/refs/tags/2025.06.04-204316.tar.gz"
-  sha256 "da2e7dd3a19f9152d8084f1aaed1c972a44761b6abe0fcfa4f73fb593f2ad04f"
+  url "https://github.com/edgeengineer/edge-agent/archive/refs/tags/2025.06.26-032653.tar.gz"
+  sha256 "b4049f30d119e7fb7588463d1e1e07172cd55d37d98da88d19ebba8f8a903d52"
   license "Apache-2.0"
   head "https://github.com/edgeengineer/edge-agent.git", branch: "main"
 
