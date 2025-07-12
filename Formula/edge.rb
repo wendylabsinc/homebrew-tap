@@ -6,8 +6,8 @@ class Edge < Formula
   license "Apache-2.0"
   head "https://github.com/edgeengineer/edge-agent.git", branch: "main"
 
-  depends_on "pv" => :macos
   depends_on xcode: ["16.3", :build]
+  depends_on "pv" if OS.mac?
   uses_from_macos "swift" => :build
 
   def install
