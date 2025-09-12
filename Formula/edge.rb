@@ -11,7 +11,6 @@ class Edge < Formula
   depends_on "swiftly" # For managing Swift toolchains (kept after install)
 
   uses_from_macos "swift" => :build
-  uses_from_macos "tar"
 
   on_linux do
     depends_on "swift" => :build # Only for building, removed after
