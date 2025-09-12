@@ -15,7 +15,6 @@ class Edge < Formula
 
   on_linux do
     depends_on "swift" => :build # Only for building, removed after
-    depends_on "tar" # Ensure tar is available at runtime
   end
 
   def install
