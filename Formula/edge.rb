@@ -19,26 +19,32 @@ class Edge < Formula
   def install
     system "./Scripts/inject-version.sh", version.to_s
 
-    # Check if we need to use swiftly for specific Swift version
-    swift_version = File.read(".swift-version").strip if File.exist?(".swift-version")
+    # Optionally use Swiftly if available and already configured
+    # Skip in CI or sandboxed environments to avoid permission issues
+    if File.exist?(".swift-version") && ENV["HOMEBREW_SANDBOX"].nil?
+      swift_version = File.read(".swift-version").strip
 
-    if swift_version && which("swiftly")
-      # Initialize swiftly if needed (for CI environments)
-      system "swiftly", "init", "-y" unless File.exist?("#{Dir.home}/.local/share/swiftly/config.json")
-
-      # Use swiftly to install and use the required Swift version
-      ohai "Installing Swift #{swift_version} via Swiftly..."
-      system "swiftly", "install", swift_version
-      system "swiftly", "use", swift_version
-
-      # Update PATH to use swiftly's Swift
-      swiftly_bin = if OS.mac?
-        "#{Dir.home}/Library/Developer/Toolchains/swift-#{swift_version}.xctoolchain/usr/bin"
+      # Check if Swiftly is already initialized
+      config_path = if OS.mac?
+        "#{Dir.home}/.swiftly/config.json"
       else
-        "#{Dir.home}/.local/share/swiftly/toolchains/#{swift_version}/usr/bin"
+        "#{Dir.home}/.local/share/swiftly/config.json"
       end
 
-      ENV.prepend_path "PATH", swiftly_bin if File.directory?(swiftly_bin)
+      if which("swiftly") && File.exist?(config_path)
+        ohai "Using Swiftly to install Swift #{swift_version}..."
+        system "swiftly", "install", swift_version
+        system "swiftly", "use", swift_version
+
+        # Update PATH to use swiftly's Swift
+        swiftly_bin = if OS.mac?
+          "#{Dir.home}/Library/Developer/Toolchains/swift-#{swift_version}.xctoolchain/usr/bin"
+        else
+          "#{Dir.home}/.local/share/swiftly/toolchains/#{swift_version}/usr/bin"
+        end
+
+        ENV.prepend_path "PATH", swiftly_bin if File.directory?(swiftly_bin)
+      end
     end
 
     if OS.mac?
