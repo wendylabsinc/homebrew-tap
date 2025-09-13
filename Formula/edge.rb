@@ -21,7 +21,7 @@ class Edge < Formula
     end
   end
 
-  depends_on xcode: ["16.3", :build] if OS.mac?
+  depends_on xcode: [">= 16.3", :build] if OS.mac?
   depends_on "pv" if OS.mac?
   depends_on "swiftly" # For managing Swift toolchains (kept after install)
 
