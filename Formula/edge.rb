@@ -3,21 +3,21 @@ class Edge < Formula
   homepage "https://github.com/edgeengineer/edge-agent"
   license "Apache-2.0"
   head "https://github.com/edgeengineer/edge-agent.git", branch: "main"
-  
+
   # Use source tarball for macOS (needs to build from source)
   on_macos do
-    url "https://github.com/edgeengineer/edge-agent/archive/refs/tags/2025.09.17-225954.tar.gz"
-    sha256 "6bab77a94706cf7e8976fef49789caa6fee687768f4008fe7cbfd732eb967b5d"
+    url "https://github.com/edgeengineer/edge-agent/archive/refs/tags/2025.09.19-224718.tar.gz"
+    sha256 "327223d4a02d8376f5cd7ee1a60d14f8bfdef9afbbfac52d320c2695a4defdcd"
   end
-  
+
   # Use pre-built binaries for Linux
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/edgeengineer/edge-agent/releases/download/2025.09.17-225954/edge-cli-linux-static-musl-aarch64.tar.gz"
-      sha256 "f448b3f01d2b193300db347adeffbed7bfef32272b9614442e77e1a5e5d4d3e6"
+      url "https://github.com/edgeengineer/edge-agent/releases/download/2025.09.19-224718/edge-cli-linux-static-musl-aarch64.tar.gz"
+      sha256 "e39ff0787e1bb0660cd9c63400e150fa3ab8b7050fe21d85047e566274161177"
     else
-      url "https://github.com/edgeengineer/edge-agent/releases/download/2025.09.17-225954/edge-cli-linux-static-musl-x86_64.tar.gz"
-      sha256 "484084be95b073c613c435503bbfc6cdfc7bae945744846cf10cc863bd7d05fb"
+      url "https://github.com/edgeengineer/edge-agent/releases/download/2025.09.19-224718/edge-cli-linux-static-musl-x86_64.tar.gz"
+      sha256 "1e0ec4192accc22597b6091659a79385ed2e8f4756169c6fe0a3d7c101ced245"
     end
   end
 
