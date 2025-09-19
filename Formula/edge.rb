@@ -6,18 +6,18 @@ class Edge < Formula
   
   # Use source tarball for macOS (needs to build from source)
   on_macos do
-    url "https://github.com/edgeengineer/edge-agent/archive/refs/tags/2025.09.12-203653.tar.gz"
-    sha256 "ac29b4da5a5b24a08e2b129fa60e3a31657d2f633d10819ab85fc636c7d76149"
+    url "https://github.com/edgeengineer/edge-agent/archive/refs/tags/2025.09.17-225954.tar.gz"
+    sha256 "6bab77a94706cf7e8976fef49789caa6fee687768f4008fe7cbfd732eb967b5d"
   end
   
   # Use pre-built binaries for Linux
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/edgeengineer/edge-agent/releases/download/2025.09.12-203653/edge-cli-linux-static-musl-aarch64.tar.gz"
-      sha256 "47af3a811c8e9115295de942402c05ef024adaafc46217ac45d4821032e3868e"
+      url "https://github.com/edgeengineer/edge-agent/releases/download/2025.09.17-225954/edge-cli-linux-static-musl-aarch64.tar.gz"
+      sha256 "f448b3f01d2b193300db347adeffbed7bfef32272b9614442e77e1a5e5d4d3e6"
     else
-      url "https://github.com/edgeengineer/edge-agent/releases/download/2025.09.12-203653/edge-cli-linux-static-musl-x86_64.tar.gz"
-      sha256 "3b23abe4821904f7ca42db27645bbe3903c8f768de0a669de66f76ff1959171e"
+      url "https://github.com/edgeengineer/edge-agent/releases/download/2025.09.17-225954/edge-cli-linux-static-musl-x86_64.tar.gz"
+      sha256 "484084be95b073c613c435503bbfc6cdfc7bae945744846cf10cc863bd7d05fb"
     end
   end
 
