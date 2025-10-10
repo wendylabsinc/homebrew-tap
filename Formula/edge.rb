@@ -1,23 +1,23 @@
 class Edge < Formula
-  desc "CLI for building and running Edge applications"
-  homepage "https://github.com/edgeengineer/edge-agent"
+  desc "CLI for building and running WenyOS applications"
+  homepage "https://github.com/wendylabsinc/wendy-agent"
   license "Apache-2.0"
-  head "https://github.com/edgeengineer/edge-agent.git", branch: "main"
+  head "https://github.com/wendylabsinc/wendy-agent.git", branch: "main"
 
   # Use source tarball for macOS (needs to build from source)
   on_macos do
-    url "https://github.com/edgeengineer/edge-agent/archive/refs/tags/2025.09.24-084214.tar.gz"
-    sha256 "d023def5d1164e01668e8c7f701c3ce932e327a3b10c7a66115939f13eb38307"
+    url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags2025.10.07-100402.tar.gz"
+    sha256 "b3ed09f7cda1384e9712ba5310819288822d036850adb3515d3b7a63b209ae61"
   end
 
   # Use pre-built binaries for Linux
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/edgeengineer/edge-agent/releases/download/2025.09.24-084214/edge-cli-linux-static-musl-aarch64.tar.gz"
-      sha256 "5836ffe8844b4e639f749806871184d2288d494f38356a88299584db9b1ddcd2"
+      url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags2025.10.07-100402/edge-cli-linux-static-musl-aarch64.tar.gz"
+      sha256 "948514dfa47c00513c3f0fe5c72faa697d32ca690a6d776b3c1114a10a414125"
     else
-      url "https://github.com/edgeengineer/edge-agent/releases/download/2025.09.24-084214/edge-cli-linux-static-musl-x86_64.tar.gz"
-      sha256 "47ed07a0847ad2a2d61cfac853d7587f6226aacbdb84bbefc79a7827dc18b9dd"
+      url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags2025.10.07-100402/edge-cli-linux-static-musl-x86_64.tar.gz"
+      sha256 "4854893cec94f13f807906735a347d17dc716711caca36c1e06fb313a2f53d06"
     end
   end
 
