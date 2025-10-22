@@ -7,5 +7,7 @@ cask "wendy" do
   sha256 "51f354e03dbcb82e2097f29baa6a74d564386b2c1c04fbb9caa45d9e5bbee99e"
 
   # Install the binary
-  binary "wendy"
+  binary "wendy-cli-macos-arm64/wendy"
+  artifact "wendy-cli-macos-arm64/wendy-agent_wendy.bundle",
+           target: "/Library/Application Support/Wendy/wendy-agent_wendy.bundle"
 end
