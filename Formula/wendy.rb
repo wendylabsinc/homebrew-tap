@@ -1,9 +1,7 @@
 class Wendy < Formula
   desc "CLI for building and running WendyOS applications"
   homepage "https://github.com/wendylabsinc/wendy-agent"
-  license "Apache-2.0"
   version "2025.10.22-190204"
-  head "https://github.com/wendylabsinc/wendy-agent.git", branch: "main"
 
   # Use source tarball for macOS (needs to build from source)
   on_macos do
