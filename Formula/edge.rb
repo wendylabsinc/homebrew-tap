@@ -6,18 +6,18 @@ class Edge < Formula
 
   # Use source tarball for macOS (needs to build from source)
   on_macos do
-    url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags2025.10.07-100402.tar.gz"
-    sha256 "b3ed09f7cda1384e9712ba5310819288822d036850adb3515d3b7a63b209ae61"
+    url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.18-100500/wendy-cli-macos-arm64.tar.gz"
+    sha256 "672ff2942303c8b060eb87bd7e7abd594bd2e7807e012925e75bda17f0698f7e"
   end
 
   # Use pre-built binaries for Linux
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags2025.10.07-100402/edge-cli-linux-static-musl-aarch64.tar.gz"
-      sha256 "948514dfa47c00513c3f0fe5c72faa697d32ca690a6d776b3c1114a10a414125"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.18-100500/wendy-cli-linux-static-musl-aarch64.tar.gz"
+      sha256 "2aa5fcf49ee3cb0e1f53f6affc84e0d696ba6a73075b4667904db134873ff13e"
     else
-      url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags2025.10.07-100402/edge-cli-linux-static-musl-x86_64.tar.gz"
-      sha256 "4854893cec94f13f807906735a347d17dc716711caca36c1e06fb313a2f53d06"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.18-100500/wendy-cli-linux-static-musl-x86_64.tar.gz"
+      sha256 "413f0c08af374c3ee14566c73965ff098ce838e1cdff1d0b3b07825a53507093"
     end
   end
 
@@ -51,21 +51,21 @@ class Edge < Formula
         end
       end
 
-      system "swift", "build", "--disable-sandbox", "-c", "release", "--product", "edge"
-      bin.install ".build/release/edge"
+      system "swift", "build", "--disable-sandbox", "-c", "release", "--product", "wendy"
+      bin.install ".build/release/wendy"
 
       # Install macOS-specific bundle with resources (plist files, etc)
-      bundle_path = ".build/release/edge-agent_edge.bundle"
-      (lib/"edge").install bundle_path if File.directory?(bundle_path)
+      bundle_path = ".build/release/wendy-agent_wendy.bundle"
+      (lib/"wendy").install bundle_path if File.directory?(bundle_path)
     else
       # Linux: Use pre-built binary
-      bin.install "edge"
+      bin.install "wendy"
     end
   end
 
   test do
     # TODO: It would be better to actually build something, instead of just checking the help text.
-    system bin/"edge", "--help"
-    assert_match "OVERVIEW: Edge CLI", shell_output("#{bin}/edge --help")
+    system bin/"wendy", "--help"
+    assert_match "OVERVIEW: Wendy CLI", shell_output("#{bin}/wendy --help")
   end
 end
