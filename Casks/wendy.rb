@@ -22,6 +22,6 @@ cask "wendy" do
 
   # Install the binary
   binary "wendy"
-  artifact "wendy-agent_wendy.bundle",
-           target: "#{Dir.home}/Library/Application Support/wendy/wendy-agent_wendy.bundle"
+  # Bundle stays in Caskroom next to binary
+  artifact "wendy-agent_wendy.bundle"
 end
