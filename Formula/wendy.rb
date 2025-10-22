@@ -1,23 +1,24 @@
 class Wendy < Formula
-  desc "CLI for building and running WenyOS applications"
+  desc "CLI for building and running WendyOS applications"
   homepage "https://github.com/wendylabsinc/wendy-agent"
   license "Apache-2.0"
+  version "2025.10.22-190204"
   head "https://github.com/wendylabsinc/wendy-agent.git", branch: "main"
 
   # Use source tarball for macOS (needs to build from source)
   on_macos do
-    url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags/2025.10.18-100500.tar.gz"
-    sha256 "e5fc8d04aa11a96ed36441424622379c542274aa44e9d2969884e2d73b174809"
+    url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags/2025.10.22-190204.tar.gz"
+    sha256 "958c968e755fa810f863aabfe3af923a384a1ad6bc0c40b107def7539525ff5f"
   end
 
   # Use pre-built binaries for Linux
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.18-100500/wendy-cli-linux-static-musl-aarch64.tar.gz"
-      sha256 "2aa5fcf49ee3cb0e1f53f6affc84e0d696ba6a73075b4667904db134873ff13e"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.22-190204/wendy-cli-linux-static-musl-aarch64.tar.gz"
+      sha256 "b969fef8e20d0bc2141e7729a3482a98c8aefe6824f3ef2a498fa119d0a31bca"
     else
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.18-100500/wendy-cli-linux-static-musl-x86_64.tar.gz"
-      sha256 "413f0c08af374c3ee14566c73965ff098ce838e1cdff1d0b3b07825a53507093"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.22-190204/wendy-cli-linux-static-musl-x86_64.tar.gz"
+      sha256 "61d0db102cc4d0c98fb29120e2f1425d6d3af7b9ce9edd657c95ae32512396d7"
     end
   end
 
