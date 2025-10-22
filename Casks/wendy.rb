@@ -8,6 +8,4 @@ cask "wendy" do
 
   # Install the binary
   binary "wendy"
-  artifact "wendy-agent_wendy.bundle",
-           target: "/Library/Application Support/Wendy/wendy-agent_wendy.bundle"
 end
