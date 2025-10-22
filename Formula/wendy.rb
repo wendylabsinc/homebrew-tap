@@ -1,4 +1,4 @@
-class Wendy < Formula
+class Edge < Formula
   desc "CLI for building and running WenyOS applications"
   homepage "https://github.com/wendylabsinc/wendy-agent"
   license "Apache-2.0"
@@ -6,8 +6,8 @@ class Wendy < Formula
 
   # Use source tarball for macOS (needs to build from source)
   on_macos do
-    url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.18-100500/wendy-cli-macos-arm64.tar.gz"
-    sha256 "672ff2942303c8b060eb87bd7e7abd594bd2e7807e012925e75bda17f0698f7e"
+    url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags/2025.10.18-100500.tar.gz"
+    sha256 "e5fc8d04aa11a96ed36441424622379c542274aa44e9d2969884e2d73b174809"
   end
 
   # Use pre-built binaries for Linux
