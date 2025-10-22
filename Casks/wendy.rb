@@ -1,11 +1,7 @@
 cask "wendy" do
   version "2025.10.22-190204"
-
   desc "CLI for building and running WendyOS applications"
-  license "Apache-2.0"
   homepage "https://github.com/wendylabsinc/wendy-agent"
-
-  head "https://github.com/wendylabsinc/wendy-agent.git", branch: "main"
 
   # Architecture-specific downloads
   on_macos do
