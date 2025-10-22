@@ -1,4 +1,4 @@
-class Edge < Formula
+class Wendy < Formula
   desc "CLI for building and running WenyOS applications"
   homepage "https://github.com/wendylabsinc/wendy-agent"
   license "Apache-2.0"
