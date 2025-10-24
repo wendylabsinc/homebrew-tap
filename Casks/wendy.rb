@@ -1,10 +1,10 @@
 cask "wendy" do
-  version "2025.10.22-190204"
+  version "2025.10.24-142919"
   desc "CLI for building and running WendyOS applications"
   homepage "https://github.com/wendylabsinc/wendy-agent"
   
-  url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.22-190204/wendy-cli-macos-arm64.tar.gz"
-  sha256 "51f354e03dbcb82e2097f29baa6a74d564386b2c1c04fbb9caa45d9e5bbee99e"
+  url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.24-142919/wendy-cli-macos-arm64.tar.gz"
+  sha256 "cbe1d957dccc003d84cce2e58040462379fb24cf34016ed07c107c99ad2e7bab"
 
   # Install the binary
   binary "wendy-cli-macos-arm64/wendy"
