@@ -20,16 +20,12 @@ cask "wendy" do
 
       # Install the binary
       binary "wendy-cli-linux-static-musl-aarch64/wendy"
-      artifact "wendy-cli-linux-static-musl-aarch64/wendy-agent_wendy.bundle",
-              target: "/usr/local/share/wendy/wendy-agent_wendy.bundle"
     else
       url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.24-142919/wendy-cli-linux-static-musl-x86_64.tar.gz"
       sha256 "0b5c740257a1f803d9ad82a4426e626df41ba22ab7c451c3c2b5f455a11048b6"
 
       # Install the binary
       binary "wendy-cli-linux-static-musl-x86_64/wendy"
-      artifact "wendy-cli-linux-static-musl-x86_64/wendy-agent_wendy.bundle",
-              target: "/usr/local/share/wendy/wendy-agent_wendy.bundle"
     end
   end
 end
