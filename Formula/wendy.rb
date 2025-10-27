@@ -3,6 +3,12 @@ class Wendy < Formula
   homepage "https://github.com/wendylabsinc/wendy-agent"
   version "2025.10.24-142919"
 
+  bottle do
+    root_url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.24-142919"
+    rebuild 1
+    sha256 cellar: :any_skip_relocation, arm64_tahoe: "0b826c8023f741c32d40d771a1cfca69865e0ac88a1e51aa76245e70eaf716c7"
+  end
+
   # Use source tarball for macOS (needs to build from source)
   on_macos do
     url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags/2025.10.24-142919.tar.gz"
