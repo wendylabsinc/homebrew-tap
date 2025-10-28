@@ -1,28 +1,28 @@
 class Wendy < Formula
   desc "CLI for building and running WendyOS applications"
   homepage "https://github.com/wendylabsinc/wendy-agent"
-  version "2025.10.24-142919"
+  version "2025.10.28-172858"
 
-  bottle do
-    root_url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.24-142919"
-    rebuild 1
-    sha256 cellar: :any_skip_relocation, arm64_tahoe: "0b826c8023f741c32d40d771a1cfca69865e0ac88a1e51aa76245e70eaf716c7"
-  end
+  # bottle do
+  #   root_url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.24-142919"
+  #   rebuild 1
+  #   sha256 cellar: :any_skip_relocation, arm64_tahoe: "0b826c8023f741c32d40d771a1cfca69865e0ac88a1e51aa76245e70eaf716c7"
+  # end
 
   # Use source tarball for macOS (needs to build from source)
   on_macos do
-    url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags/2025.10.24-142919.tar.gz"
-    sha256 "73655c94e088961a2338aeb49ee62354ff3dbba00554d26ab24407b6d0b909b5"
+    url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags/2025.10.28-172858.tar.gz"
+    sha256 "86684507cd49886d82aaa508508ed81c234949eb771ff51729fc6a61a233f94e"
   end
 
   # Use pre-built binaries for Linux
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.24-142919/wendy-cli-linux-static-musl-aarch64.tar.gz"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.28-172858/wendy-cli-linux-static-musl-aarch64.tar.gz"
       sha256 "a52f35021d00acc8d56c42661f14aa27023cfef5f6daeeb3ccb97e1ee1e28f18"
     else
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.24-142919/wendy-cli-linux-static-musl-x86_64.tar.gz"
-      sha256 "0b5c740257a1f803d9ad82a4426e626df41ba22ab7c451c3c2b5f455a11048b6"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.28-172858/wendy-cli-linux-static-musl-x86_64.tar.gz"
+      sha256 "851a0a0b1331f73b585a52e463d15c44b0dea4b8921453c31ffd99e021b49e0b"
     end
   end
 
