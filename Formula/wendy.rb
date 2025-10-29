@@ -1,7 +1,6 @@
 class Wendy < Formula
   desc "CLI for building and running WendyOS applications"
   homepage "https://github.com/wendylabsinc/wendy-agent"
-  version "2025.10.28-172858"
 
   # bottle do
   #   root_url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.24-142919"
