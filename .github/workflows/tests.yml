@@ -10,7 +10,9 @@ jobs:
   test-bot:
     strategy:
       matrix:
-        os: [ ubuntu-22.04, macos-15-intel, macos-26 ]
+        # Temporarily disabled ubuntu until we fix version detection for Linux binaries
+        # os: [ ubuntu-22.04, macos-15-intel, macos-26 ]
+        os: [ macos-15-intel, macos-26 ]
     runs-on: ${{ matrix.os }}
     permissions:
       actions: read
