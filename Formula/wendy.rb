@@ -2,69 +2,30 @@ class Wendy < Formula
   desc "CLI for building and running WendyOS applications"
   homepage "https://github.com/wendylabsinc/wendy-agent"
 
-  # bottle do
-  #   root_url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.24-142919"
-  #   rebuild 1
-  #   sha256 cellar: :any_skip_relocation, arm64_tahoe:
-  #     "0b826c8023f741c32d40d771a1cfca69865e0ac88a1e51aa76245e70eaf716c7"
-  # end
-
-  # Use source tarball for macOS (needs to build from source)
+  # Use pre-built binaries for all platforms
   if OS.mac?
-    url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags/2025.10.28-172858.tar.gz"
-    sha256 "86684507cd49886d82aaa508508ed81c234949eb771ff51729fc6a61a233f94e"
-  # Use pre-built binaries for Linux
+    # macOS ARM64 only (signed and notarized)
+    url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.30-161630/wendy-cli-macos-arm64-2025.10.30-161630.tar.gz"
+    sha256 "902930d34ec0fc384f13b9fc7b99411890b17f56ff9658300a934a9a6335996b"
   elsif OS.linux?
     if Hardware::CPU.arm?
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.28-172858/wendy-cli-linux-static-musl-aarch64.tar.gz"
-      sha256 "a52f35021d00acc8d56c42661f14aa27023cfef5f6daeeb3ccb97e1ee1e28f18"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.30-161630/wendy-cli-linux-static-musl-aarch64-2025.10.30-161630.tar.gz"
+      sha256 "4bd47cb7024bf43c61c23f5e7ef61697db57ca4f70f46ed4fc5d002ca4d5569e"
     else
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.28-172858/wendy-cli-linux-static-musl-x86_64.tar.gz"
-      sha256 "851a0a0b1331f73b585a52e463d15c44b0dea4b8921453c31ffd99e021b49e0b"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.30-161630/wendy-cli-linux-static-musl-x86_64-2025.10.30-161630.tar.gz"
+      sha256 "76dcd8e7fa87b1ad831d57d12b0be2f9b1766bf7d1fcf6b2eaa61f7a0a43b74a"
     end
   end
 
-  depends_on xcode: [">= 26.0", :build] if OS.mac?
-  depends_on "pv" if OS.mac?
-  depends_on "swiftly" if OS.mac? # For managing Swift toolchains (kept after install)
-
-  uses_from_macos "swift" => :build
-
   def install
-    if OS.mac?
-      # macOS: Build from source
-      system "./Scripts/inject-version.sh", version.to_s
+    # Install pre-built binaries (all platforms)
+    bin.install "wendy"
+    bin.install "wendy-helper" if File.exist?("wendy-helper")
+    bin.install "wendy-network-daemon" if File.exist?("wendy-network-daemon")
 
-      # Optionally use Swiftly if available and already configured
-      # Skip in CI or sandboxed environments to avoid permission issues
-      if File.exist?(".swift-version") && ENV["HOMEBREW_SANDBOX"].nil?
-        swift_version = File.read(".swift-version").strip
-
-        # Check if Swiftly is already initialized
-        config_path = "#{Dir.home}/.swiftly/config.json"
-
-        if which("swiftly") && File.exist?(config_path)
-          ohai "Using Swiftly to install Swift #{swift_version}..."
-          system "swiftly", "install", swift_version
-          system "swiftly", "use", swift_version
-
-          # Update PATH to use swiftly's Swift
-          swiftly_bin = "#{Dir.home}/Library/Developer/Toolchains/swift-#{swift_version}.xctoolchain/usr/bin"
-          ENV.prepend_path "PATH", swiftly_bin if File.directory?(swiftly_bin)
-        end
-      end
-
-      system "swiftly", "run", "+#{swift_version}", "swift", "build", "--disable-sandbox", "-c", "release",
-             "--product", "wendy"
-      bin.install ".build/release/wendy"
-
-      # Install macOS-specific bundle with resources (plist files, etc)
-      bundle_path = ".build/release/wendy-agent_wendy.bundle"
-      (lib/"wendy").install bundle_path if File.directory?(bundle_path)
-    else
-      # Linux: Use pre-built binary
-      bin.install "wendy"
-    end
+    # Install macOS-specific bundle with resources (plist files, etc) if present
+    bundle_path = "wendy-agent_wendy.bundle"
+    (lib/"wendy").install bundle_path if File.directory?(bundle_path)
   end
 
   test do

@@ -10,9 +10,9 @@ jobs:
   test-bot:
     strategy:
       matrix:
-        # Temporarily disabled ubuntu until we fix version detection for Linux binaries
-        # os: [ ubuntu-22.04, macos-15-intel, macos-26 ]
-        os: [ macos-15-intel, macos-26 ]
+        # macOS ARM64 only (using pre-built binaries, no bottles needed)
+        # Ubuntu disabled - uses pre-built binaries from releases
+        os: [ macos-26 ]
     runs-on: ${{ matrix.os }}
     permissions:
       actions: read
