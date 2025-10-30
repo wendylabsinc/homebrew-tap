@@ -54,7 +54,8 @@ class Wendy < Formula
         end
       end
 
-      system "swiftly", "run", "+#{swift_version}", "swift", "build", "--disable-sandbox", "-c", "release", "--product", "wendy"
+      system "swiftly", "run", "+#{swift_version}", "swift", "build", "--disable-sandbox", "-c", "release",
+             "--product", "wendy"
       bin.install ".build/release/wendy"
 
       # Install macOS-specific bundle with resources (plist files, etc)
