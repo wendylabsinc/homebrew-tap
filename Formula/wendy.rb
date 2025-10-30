@@ -24,7 +24,7 @@ class Wendy < Formula
     end
   end
 
-  depends_on xcode: [">= 16.3", :build] if OS.mac?
+  depends_on xcode: [">= 26.0", :build] if OS.mac?
   depends_on "pv" if OS.mac?
   depends_on "swiftly" if OS.mac? # For managing Swift toolchains (kept after install)
 
@@ -54,7 +54,7 @@ class Wendy < Formula
         end
       end
 
-      system "swift", "build", "--disable-sandbox", "-c", "release", "--product", "wendy"
+      system "swiftly", "run", "+#{swift_version}", "swift", "build", "--disable-sandbox", "-c", "release", "--product", "wendy"
       bin.install ".build/release/wendy"
 
       # Install macOS-specific bundle with resources (plist files, etc)
