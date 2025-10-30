@@ -11,15 +11,15 @@ class Wendy < Formula
 
   # Use source tarball for macOS (needs to build from source)
   if OS.mac?
-    url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags/2025.10.28-172858.tar.gz"
-    sha256 "86684507cd49886d82aaa508508ed81c234949eb771ff51729fc6a61a233f94e"
+    url "https://github.com/wendylabsinc/wendy-agent/archive/refs/tags/2025.10.30-171823.tar.gz"
+    sha256 "d9fe0848696c91911cfaa81a8dee8e2932c961edfa4279841ae07eb6d1fd1fa8"
   # Use pre-built binaries for Linux
   elsif OS.linux?
     if Hardware::CPU.arm?
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.28-172858/wendy-cli-linux-static-musl-aarch64.tar.gz"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.30-171823/wendy-cli-linux-static-musl-aarch64-2025.10.30-171823.tar.gz"
       sha256 "a52f35021d00acc8d56c42661f14aa27023cfef5f6daeeb3ccb97e1ee1e28f18"
     else
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.28-172858/wendy-cli-linux-static-musl-x86_64.tar.gz"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2025.10.30-171823/wendy-cli-linux-static-musl-x86_64-2025.10.30-171823.tar.gz"
       sha256 "851a0a0b1331f73b585a52e463d15c44b0dea4b8921453c31ffd99e021b49e0b"
     end
   end
