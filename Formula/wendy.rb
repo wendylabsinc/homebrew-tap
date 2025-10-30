@@ -2,6 +2,11 @@ class Wendy < Formula
   desc "CLI for building and running WendyOS applications"
   homepage "https://github.com/wendylabsinc/wendy-agent"
 
+  bottle do
+    root_url "https://github.com/wendylabsinc/homebrew-tap/releases/download/wendy-2025.10.30-175104"
+    sha256 cellar: :any_skip_relocation, arm64_tahoe: "548cdb8ff71d74a4cb4f7029a5163dff659694f0b9980ad388e0478bc67687b1"
+  end
+
   # Use pre-built binaries for all platforms
   if OS.mac?
     # macOS ARM64 only (signed and notarized)
