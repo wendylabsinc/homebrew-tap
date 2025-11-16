@@ -35,7 +35,6 @@ class Wendy < Formula
 
   def post_install
     system "swiftly", "install", "6.2.1"
-    system "swiftly", "use", "6.2.1"
 
     # Install the Swift SDK if not already installed
     if not File.exist?("~/.swiftpm/swift-sdks/6.2.1-RELEASE_wendyos_aarch64.artifactbundle")
