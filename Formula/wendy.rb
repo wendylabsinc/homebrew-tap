@@ -33,6 +33,16 @@ class Wendy < Formula
     (lib/"wendy").install bundle_path if File.directory?(bundle_path)
   end
 
+  def post_install
+    system "swiftly", "install", "6.2.1"
+    system "swiftly", "use", "6.2.1"
+
+    # Install the Swift SDK if not already installed
+    if not File.exist?("~/.swiftpm/swift-sdks/6.2.1-RELEASE_wendyos_aarch64.artifactbundle")
+      system "swift", "sdk", "install", "https://github.com/wendylabsinc/wendy-swift-tools/releases/download/0.3.0/6.2.1-RELEASE_wendyos_aarch64.artifactbundle.zip", "--checksum", "d1f198fe5ce827e4f7f0d812a4c180c0b09831affafe520a254d4f0ce0c53ae9"
+    end
+  end
+
   test do
     # TODO: It would be better to actually build something, instead of just checking the help text.
     system bin/"wendy", "--help"
