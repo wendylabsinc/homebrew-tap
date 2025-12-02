@@ -33,6 +33,17 @@ class Wendy < Formula
     (lib/"wendy").install bundle_path if File.directory?(bundle_path)
   end
 
+  def caveats
+    <<~EOS
+      Attention: The Wendy CLI collects anonymous analytics.
+      They help us understand which commands are used most, identify common errors, and prioritize improvements.
+      Analytics are enabled by default. If you'd like to opt-out, use the following command:
+        wendy analytics disable
+      Or, set the following environment variable:
+        WENDY_ANALYTICS=false
+    EOS
+  end
+
   test do
     # TODO: It would be better to actually build something, instead of just checking the help text.
     system bin/"wendy", "--help"
