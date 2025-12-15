@@ -3,8 +3,8 @@ class Wendy < Formula
   homepage "https://github.com/wendylabsinc/wendy-agent"
 
   bottle do
-    root_url "https://github.com/wendylabsinc/homebrew-tap/releases/download/wendy-2025.12.14-064816"
-    sha256 cellar: :any_skip_relocation, arm64_tahoe: "34d1ba0f9673576ed05811a88ca84c92319b2b591f0a6ca56e9cb3ee7f5d921e"
+    root_url "https://github.com/wendylabsinc/homebrew-tap/releases/download/wendy-2025.12.15-115115"
+    sha256 cellar: :any_skip_relocation, arm64_tahoe: "c8b161cbe9d506ba412cc9a7cdb0799c6bdc08adef165c001cc49757da8bd045"
   end
 
   # Use pre-built binaries for all platforms
