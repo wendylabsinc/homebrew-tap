@@ -10,15 +10,15 @@ class Wendy < Formula
   # Use pre-built binaries for all platforms
   if OS.mac?
     # macOS ARM64 only (signed and notarized)
-    url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.01.27-103450/wendy-cli-macos-arm64-2026.01.27-103450.tar.gz"
-    sha256 "e5e63293070aac400e95062f389bfe3e4dced8658dd21e29c920f50bcc25e754"
+    url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.01.27-194133/wendy-cli-macos-arm64-2026.01.27-194133.tar.gz"
+    sha256 "92ca87ab0ea5a6c7b902f9324696fa7b7aa1fbb4cb9045800370cf521c345127"
   elsif OS.linux?
     if Hardware::CPU.arm?
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.01.27-103450/wendy-cli-linux-static-musl-aarch64-2026.01.27-103450.tar.gz"
-      sha256 "f43a34ac6fa289568009c8a42800ba3db65bd31585ed3aa191815c77c8a256fb"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.01.27-194133/wendy-cli-linux-static-musl-aarch64-2026.01.27-194133.tar.gz"
+      sha256 "daea27c678b727d190163dc41e41729d86ff02e94720ec46a3ad55c19a6303d9"
     else
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.01.27-103450/wendy-cli-linux-static-musl-x86_64-2026.01.27-103450.tar.gz"
-      sha256 "3bc64029f78b7aa1be3be8677758ca0df479b73c65a1a581e87352a079695493"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.01.27-194133/wendy-cli-linux-static-musl-x86_64-2026.01.27-194133.tar.gz"
+      sha256 "75591d8dc5759c05f7b2334adad24fdf2af7b57b5492171db14dc80f8534a63f"
     end
   end
 
