@@ -31,6 +31,9 @@ class Wendy < Formula
     # Install macOS-specific bundle with resources (plist files, etc) if present
     bundle_path = "wendy-agent_wendy.bundle"
     (lib/"wendy").install bundle_path if File.directory?(bundle_path)
+
+    # Generate and install shell completions
+    generate_completions_from_executable(bin/"wendy", "--generate-completion-script")
   end
 
   def caveats
