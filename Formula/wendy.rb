@@ -22,6 +22,8 @@ class Wendy < Formula
     end
   end
 
+  conflicts_with "wendy-nightly", because: "both install a `wendy` binary"
+
   def install
     # Install pre-built binaries (all platforms)
     bin.install "wendy"

@@ -35,7 +35,7 @@ class WendyNightly < Formula
     (lib/"wendy").install bundle_path if File.directory?(bundle_path)
 
     # Generate and install shell completions
-    generate_completions_from_executable(bin/"wendy", "--generate-completion-script")
+    generate_completions_from_executable(bin/"wendy", "completion")
   end
 
   def caveats
