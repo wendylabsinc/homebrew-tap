@@ -1,0 +1,81 @@
+name: nightly bottle
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - Formula/wendy-nightly.rb
+
+jobs:
+  bottle:
+    runs-on: macos-26
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        id: version
+        run: |
+          version=$(sed -n 's/.*root_url "https:\/\/github.com\/wendylabsinc\/homebrew-tap\/releases\/download\/wendy-nightly-\(.*\)"/\1/p' Formula/wendy-nightly.rb)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Version: $version"
+
+      - name: Check if release already exists
+        id: check
+        run: |
+          if gh release view "wendy-nightly-${{ steps.version.outputs.version }}" &>/dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Homebrew
+        if: steps.check.outputs.exists == 'false'
+        uses: Homebrew/actions/setup-homebrew@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build bottle
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          brew install --build-bottle wendylabsinc/tap/wendy-nightly
+          brew bottle --no-rebuild wendylabsinc/tap/wendy-nightly
+          # Rename from double-dash to single-dash format
+          for f in wendy-nightly--*.bottle.tar.gz; do
+            mv "$f" "${f/wendy-nightly--/wendy-nightly-}"
+          done
+
+      - name: Update bottle sha256
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          bottle_file=$(ls wendy-nightly-*.bottle.tar.gz)
+          sha256=$(shasum -a 256 "$bottle_file" | awk '{print $1}')
+          # Update the sha256 in the formula
+          sed -i '' "s/sha256 cellar: :any_skip_relocation, arm64_tahoe: \"[a-f0-9]*\"/sha256 cellar: :any_skip_relocation, arm64_tahoe: \"$sha256\"/" Formula/wendy-nightly.rb
+
+      - name: Commit updated bottle sha256
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet Formula/wendy-nightly.rb; then
+            git add Formula/wendy-nightly.rb
+            git commit -m "wendy-nightly: update ${{ steps.version.outputs.version }} bottle"
+            git push
+          fi
+
+      - name: Create release
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          gh release create "wendy-nightly-${{ steps.version.outputs.version }}" \
+            --title "wendy-nightly ${{ steps.version.outputs.version }}" \
+            --notes "Nightly bottle for wendy-nightly ${{ steps.version.outputs.version }}" \
+            --prerelease \
+            wendy-nightly-*.bottle.tar.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
