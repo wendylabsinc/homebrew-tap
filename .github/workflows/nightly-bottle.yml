@@ -66,7 +66,7 @@ jobs:
           if ! git diff --quiet Formula/wendy-nightly.rb; then
             git add Formula/wendy-nightly.rb
             git commit -m "wendy-nightly: update ${{ steps.version.outputs.version }} bottle"
-            git push
+            git push origin main
           fi
 
       - name: Create release
