@@ -3,23 +3,22 @@ class Wendy < Formula
   homepage "https://github.com/wendylabsinc/wendy-agent"
 
   bottle do
-    root_url "https://github.com/wendylabsinc/homebrew-tap/releases/download/wendy-2026.02.06-150016"
-    rebuild 3
-    sha256 cellar: :any_skip_relocation, arm64_tahoe: "5a20a8f19c058c28ed25bd7b9a178e83480bb055fc32e3fa56553aec6d6dd31c"
+    root_url "https://github.com/wendylabsinc/homebrew-tap/releases/download/wendy-2026.03.10-165737"
+    sha256 cellar: :any_skip_relocation, arm64_tahoe: "0000000000000000000000000000000000000000000000000000000000000000"
   end
 
   # Use pre-built binaries for all platforms
   if OS.mac?
     # macOS ARM64 only (signed and notarized)
-    url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.02.06-150016/wendy-cli-macos-arm64-2026.02.06-150016.tar.gz"
-    sha256 "49176fd12e191306b6c74059468046e3b53d030281d2356745886ff370488507"
+    url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.03.10-165737/wendy-cli-darwin-arm64-2026.03.10-165737.tar.gz"
+    sha256 "359cb9d8019885bab70966e24c0ae684ffa302418cef99a6d85259528a9b6263"
   elsif OS.linux?
     if Hardware::CPU.arm?
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.02.06-150016/wendy-cli-linux-static-musl-aarch64-2026.02.06-150016.tar.gz"
-      sha256 "ea8cbc4861dc8513531454bddade96bda77718cc55421dedfa5f2b8628e213c5"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.03.10-165737/wendy-cli-linux-arm64-2026.03.10-165737.tar.gz"
+      sha256 "4efa807ddd1279229ba65ce0b39a4273e660c7f093dff73af0198db95eafd23f"
     else
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.02.06-150016/wendy-cli-linux-static-musl-x86_64-2026.02.06-150016.tar.gz"
-      sha256 "fccf636df6007499b2f956f2d1ac9a9dae4a6d97636633198e7434b8d2a25353"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.03.10-165737/wendy-cli-linux-amd64-2026.03.10-165737.tar.gz"
+      sha256 "f0cb9552f1ced6e140dad4313271d1f00db4013fba214a1fb1b9568f1289dda8"
     end
   end
 
@@ -36,7 +35,7 @@ class Wendy < Formula
     (lib/"wendy").install bundle_path if File.directory?(bundle_path)
 
     # Generate and install shell completions
-    generate_completions_from_executable(bin/"wendy", "--generate-completion-script")
+    generate_completions_from_executable(bin/"wendy", "completion")
   end
 
   def caveats
