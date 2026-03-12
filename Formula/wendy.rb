@@ -52,6 +52,6 @@ class Wendy < Formula
   test do
     # TODO: It would be better to actually build something, instead of just checking the help text.
     system bin/"wendy", "--help"
-    assert_match "OVERVIEW: Wendy CLI", shell_output("#{bin}/wendy --help")
+    assert_match "wendy [command]", shell_output("#{bin}/wendy --help")
   end
 end
