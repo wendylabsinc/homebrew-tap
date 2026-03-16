@@ -24,6 +24,39 @@ jobs:
       - name: Set up git
         uses: Homebrew/actions/git-user-config@main
 
+      - name: Wait for tests to complete
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          echo "Waiting for tests.yml workflow to complete for SHA ${PR_HEAD_SHA}..."
+          for i in $(seq 1 60); do
+            RUN_STATUS=$(gh run list \
+              --repo "$GITHUB_REPOSITORY" \
+              --workflow tests.yml \
+              --commit "$PR_HEAD_SHA" \
+              --json status,conclusion \
+              --jq '.[0] | "\(.status) \(.conclusion)"' 2>/dev/null || echo "not_found")
+
+            STATUS=$(echo "$RUN_STATUS" | awk '{print $1}')
+            CONCLUSION=$(echo "$RUN_STATUS" | awk '{print $2}')
+
+            if [ "$STATUS" = "completed" ]; then
+              if [ "$CONCLUSION" = "success" ]; then
+                echo "Tests completed successfully!"
+                exit 0
+              else
+                echo "Tests finished with conclusion: $CONCLUSION"
+                exit 1
+              fi
+            fi
+
+            echo "Attempt $i/60: tests still $STATUS, waiting 30s..."
+            sleep 30
+          done
+          echo "Timed out waiting for tests to complete"
+          exit 1
+
       - name: Pull bottles
         env:
           HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
