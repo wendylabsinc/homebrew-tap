@@ -4,12 +4,23 @@ on:
   push:
     branches:
       - main
+    paths:
+      - Formula/**
+      - .github/workflows/tests.yml
+      - .github/workflows/bottle.yml
+      - .github/workflows/nightly-bottle.yml
   pull_request:
+    paths:
+      - Formula/**
+      - .github/workflows/tests.yml
+      - .github/workflows/bottle.yml
+      - .github/workflows/nightly-bottle.yml
 
 jobs:
   test-bot:
     strategy:
       matrix:
+        # Formula validation only. Casks are checked in cask-tests.yml.
         # macOS ARM64 only (using pre-built binaries, no bottles needed)
         # Ubuntu disabled - uses pre-built binaries from releases
         os: [ macos-26 ]
