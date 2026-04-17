@@ -26,17 +26,16 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check cask style
-        run: brew style --display-cop-names Casks/*.rb
-
-      - name: Audit casks
+      - name: Style and audit casks
         run: |
           shopt -s nullglob
           casks=(Casks/*.rb)
           if [ ${#casks[@]} -eq 0 ]; then
-            echo "No casks to audit"
+            echo "No casks to check"
             exit 0
           fi
+
+          brew style --display-cop-names "${casks[@]}"
 
           for cask in "${casks[@]}"; do
             echo "Auditing ${cask}"
