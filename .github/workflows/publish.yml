@@ -24,40 +24,90 @@ jobs:
       - name: Set up git
         uses: Homebrew/actions/git-user-config@main
 
-      - name: Wait for tests to complete
+      - name: Detect changed tap content
+        id: changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          FILES=$(gh pr view "$PR_NUMBER" \
+            --repo "$GITHUB_REPOSITORY" \
+            --json files \
+            --jq '.files[].path')
+
+          echo "Changed files:"
+          echo "$FILES"
+
+          if echo "$FILES" | grep -q '^Formula/'; then
+            echo "has_formula_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_formula_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if echo "$FILES" | grep -q '^Casks/'; then
+            echo "has_cask_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_cask_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Wait for required checks to complete
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HAS_FORMULA_CHANGES: ${{ steps.changes.outputs.has_formula_changes }}
+          HAS_CASK_CHANGES: ${{ steps.changes.outputs.has_cask_changes }}
         run: |
-          echo "Waiting for tests.yml workflow to complete for SHA ${PR_HEAD_SHA}..."
-          for i in $(seq 1 60); do
-            RUN_STATUS=$(gh run list \
-              --repo "$GITHUB_REPOSITORY" \
-              --workflow tests.yml \
-              --commit "$PR_HEAD_SHA" \
-              --json status,conclusion \
-              --jq '.[0] | "\(.status) \(.conclusion)"' 2>/dev/null || echo "not_found")
+          set -euo pipefail
 
-            STATUS=$(echo "$RUN_STATUS" | awk '{print $1}')
-            CONCLUSION=$(echo "$RUN_STATUS" | awk '{print $2}')
+          wait_for_workflow() {
+            local workflow="$1"
 
-            if [ "$STATUS" = "completed" ]; then
-              if [ "$CONCLUSION" = "success" ]; then
-                echo "Tests completed successfully!"
-                exit 0
-              else
-                echo "Tests finished with conclusion: $CONCLUSION"
-                exit 1
+            echo "Waiting for ${workflow} to complete for SHA ${PR_HEAD_SHA}..."
+            for i in $(seq 1 60); do
+              RUN_STATUS=$(gh run list \
+                --repo "$GITHUB_REPOSITORY" \
+                --workflow "$workflow" \
+                --commit "$PR_HEAD_SHA" \
+                --json status,conclusion \
+                --jq '.[0] | "\(.status) \(.conclusion)"' 2>/dev/null || echo "not_found")
+
+              STATUS=$(echo "$RUN_STATUS" | awk '{print $1}')
+              CONCLUSION=$(echo "$RUN_STATUS" | awk '{print $2}')
+
+              if [ "$STATUS" = "completed" ]; then
+                if [ "$CONCLUSION" = "success" ]; then
+                  echo "${workflow} completed successfully"
+                  return 0
+                fi
+
+                echo "${workflow} finished with conclusion: $CONCLUSION"
+                return 1
               fi
-            fi
 
-            echo "Attempt $i/60: tests still $STATUS, waiting 30s..."
-            sleep 30
-          done
-          echo "Timed out waiting for tests to complete"
-          exit 1
+              echo "Attempt $i/60: ${workflow} still $STATUS, waiting 30s..."
+              sleep 30
+            done
+
+            echo "Timed out waiting for ${workflow}"
+            return 1
+          }
+
+          if [ "$HAS_FORMULA_CHANGES" = "true" ]; then
+            wait_for_workflow tests.yml
+          fi
+
+          if [ "$HAS_CASK_CHANGES" = "true" ]; then
+            wait_for_workflow cask-tests.yml
+          fi
+
+          if [ "$HAS_FORMULA_CHANGES" != "true" ] && [ "$HAS_CASK_CHANGES" != "true" ]; then
+            echo "No Formula/ or Casks/ changes detected; nothing to gate"
+          fi
 
       - name: Pull bottles
+        if: steps.changes.outputs.has_formula_changes == 'true'
         env:
           HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PULL_REQUEST: ${{ github.event.pull_request.number }}
