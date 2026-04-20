@@ -6,13 +6,13 @@ on:
       - main
     paths:
       - Formula/**
-      - .github/workflows/tests.yml
+      - .github/workflows/formula-tests.yml
       - .github/workflows/bottle.yml
       - .github/workflows/nightly-bottle.yml
   pull_request:
     paths:
       - Formula/**
-      - .github/workflows/tests.yml
+      - .github/workflows/formula-tests.yml
       - .github/workflows/bottle.yml
       - .github/workflows/nightly-bottle.yml
 

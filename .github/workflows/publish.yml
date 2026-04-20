@@ -95,7 +95,7 @@ jobs:
           }
 
           if [ "$HAS_FORMULA_CHANGES" = "true" ]; then
-            wait_for_workflow tests.yml
+            wait_for_workflow formula-tests.yml
           fi
 
           if [ "$HAS_CASK_CHANGES" = "true" ]; then
