@@ -53,8 +53,9 @@ jobs:
           brew style --display-cop-names "${casks[@]}"
 
           for cask in "${casks[@]}"; do
-            echo "Auditing ${cask}"
-            brew audit --cask --strict "$cask"
+            cask_name=$(basename "$cask" .rb)
+            echo "Auditing ${cask_name}"
+            brew audit --cask --strict "$cask_name"
           done
 
       - name: Upload bottles as artifact
