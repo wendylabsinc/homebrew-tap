@@ -4,7 +4,7 @@ cask "wendy-agent-nightly" do
 
   url "https://github.com/wendylabsinc/wendy-agent/releases/download/#{version}/wendy-agent-macos-arm64-#{version}.zip"
   name "Wendy Agent"
-  desc "Wendy Agent for macOS (nightly)"
+  desc "Manage your headless machine (nightly)"
   homepage "https://github.com/wendylabsinc/wendy-agent"
 
   app "WendyAgentMac.app"
