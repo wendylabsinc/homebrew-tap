@@ -3,22 +3,22 @@ class WendyNightly < Formula
   homepage "https://github.com/wendylabsinc/wendy-agent"
 
   bottle do
-    root_url "https://github.com/wendylabsinc/homebrew-tap/releases/download/wendy-nightly-2026.04.25-221645"
-    sha256 cellar: :any_skip_relocation, arm64_tahoe: "e10a3249a6508e7fbea730c4e58877440c7cdf2d3749f23e8becb9d34508c2a6"
+    root_url "https://github.com/wendylabsinc/homebrew-tap/releases/download/wendy-nightly-2026.04.30-152136"
+    sha256 cellar: :any_skip_relocation, arm64_tahoe: "0c96747899d9851fd69dd04aa85f60976dd3624064efcfc869dab6dd0c68a4d6"
   end
 
   # Use pre-built binaries for all platforms
   if OS.mac?
     # macOS ARM64 only (signed and notarized)
-    url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.04.25-221645/wendy-cli-darwin-arm64-2026.04.25-221645.tar.gz"
-    sha256 "4fa788cb5700f0f25890b5f880f3f30c88753eff285e6aeb0eb0c98dfebec1c4"
+    url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.04.30-152136/wendy-cli-darwin-arm64-2026.04.30-152136.tar.gz"
+    sha256 "cf88c24babf4401884d298f7537b882cd03158559fd1081673f123ed36267bb7"
   elsif OS.linux?
     if Hardware::CPU.arm?
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.04.25-221645/wendy-cli-linux-arm64-2026.04.25-221645.tar.gz"
-      sha256 "1b3b9be8db18bfa6d4eaf2ead95089df00d6dccab2a57ca3e693eedf08d31979"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.04.30-152136/wendy-cli-linux-arm64-2026.04.30-152136.tar.gz"
+      sha256 "e3e267837df75343e12d5a32d29afd4b0d476c95c9fb2ad9acb3cbbf34aa0a77"
     else
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.04.25-221645/wendy-cli-linux-amd64-2026.04.25-221645.tar.gz"
-      sha256 "4e962fdfdaa358319e534cb21c0c1ca47ac1072524d470112abdf7e34a7c7f9c"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.04.30-152136/wendy-cli-linux-amd64-2026.04.30-152136.tar.gz"
+      sha256 "def37916045a3002bccbede129f54bdc123930c73dd2eecc7e0b6e7633e8b96f"
     end
   end
 
