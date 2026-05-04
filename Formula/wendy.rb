@@ -33,13 +33,13 @@ class Wendy < Formula
     # Install macOS-specific bundle with resources (plist files, etc) if present
     bundle_path = "wendy-agent_wendy.bundle"
     (lib/"wendy").install bundle_path if File.directory?(bundle_path)
-
-    # Generate and install shell completions
-    generate_completions_from_executable(bin/"wendy", "completion")
   end
 
   def caveats
     <<~EOS
+      To install shell completions, run:
+        wendy completion install
+
       Attention: The Wendy CLI collects anonymous analytics.
       They help us understand which commands are used most, identify common errors, and prioritize improvements.
       Analytics are enabled by default. If you'd like to opt-out, use the following command:
