@@ -38,7 +38,7 @@ class Wendy < Formula
     generate_completions_from_executable(
       bin/"wendy",
       "completion", "install", "--stdout",
-      shell_parameter_format: "--shell=%s"
+      shell_parameter_format: "--shell="
     )
   end
 
