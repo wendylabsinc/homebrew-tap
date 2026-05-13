@@ -7,5 +7,7 @@ cask "wendy-agent-nightly" do
   desc "Manage your headless device (nightly)"
   homepage "https://github.com/wendylabsinc/wendy-agent"
 
+  depends_on :macos
+
   app "WendyAgentMac.app"
 end
