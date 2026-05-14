@@ -1,13 +1,11 @@
 cask "wendy-agent-nightly" do
-  version "2026.05.12-153510"
-  sha256 "248d9ed19bb3f5a737d11ae93d20b30ce31f3e1889fa0ad532d3b503386bc334"
+  version "2026.05.14-170103"
+  sha256 "bc7135ca24f809a32f1cf84ea834210a5b0a2ce52ad80e0826afff5ef7e312f3"
 
   url "https://github.com/wendylabsinc/wendy-agent/releases/download/#{version}/wendy-agent-macos-arm64-#{version}.zip"
   name "Wendy Agent"
   desc "Manage your headless device (nightly)"
   homepage "https://github.com/wendylabsinc/wendy-agent"
-
-  depends_on :macos
 
   app "WendyAgentMac.app"
 end
