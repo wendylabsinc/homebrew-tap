@@ -58,6 +58,6 @@ class WendyNightly < Formula
 
   test do
     system bin/"wendy", "--help"
-    assert_match "OVERVIEW: Wendy CLI", shell_output("#{bin}/wendy --help")
+    assert_match "wendy [command]", shell_output("#{bin}/wendy --help")
   end
 end
