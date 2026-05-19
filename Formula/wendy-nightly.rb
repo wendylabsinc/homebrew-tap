@@ -38,6 +38,10 @@ class WendyNightly < Formula
     generate_completions_from_executable(bin/"wendy", "completion")
   end
 
+  def post_install
+    quiet_system bin/"wendy", "completion", "install"
+  end
+
   def caveats
     <<~EOS
       Attention: The Wendy CLI collects anonymous analytics.
@@ -46,11 +50,14 @@ class WendyNightly < Formula
         wendy analytics disable
       Or, set the following environment variable:
         WENDY_ANALYTICS=false
+
+      To set up MCP integration with your AI tools:
+        wendy mcp setup
     EOS
   end
 
   test do
     system bin/"wendy", "--help"
-    assert_match "OVERVIEW: Wendy CLI", shell_output("#{bin}/wendy --help")
+    assert_match "wendy [command]", shell_output("#{bin}/wendy --help")
   end
 end
