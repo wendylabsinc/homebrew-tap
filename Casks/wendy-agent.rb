@@ -1,8 +1,6 @@
-# frozen_string_literal: true
-
 cask "wendy-agent" do
-  version "2026.06.24-080311"
-  sha256 "c0903a4018ce66ea9cc4f1c97d06d0109616e2801d4eb262cfb32adacdbb9816"
+  version "2026.06.24-144703"
+  sha256 "ca22b934adbf55e3928b30d89c722cf76e499634c7af81fc03d1a614e2373894"
 
   url "https://github.com/wendylabsinc/wendy-agent/releases/download/#{version}/wendy-agent-macos-arm64-#{version}.zip"
   name "Wendy Agent"
