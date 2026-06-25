@@ -4,7 +4,7 @@ class WendyNightly < Formula
 
   bottle do
     root_url "https://github.com/wendylabsinc/homebrew-tap/releases/download/wendy-nightly-2026.06.25-201650"
-    sha256 cellar: :any_skip_relocation, arm64_tahoe: "a1530e22cdf08d1b21cb4a660efef24d67dea60c1a27be7983804e775f9d57dc"
+    sha256 cellar: :any_skip_relocation, arm64_tahoe: "cec039b275f29181ce838c30d913f964c98726b25f86fcf5cb52b7b661260383"
   end
 
   # Use pre-built binaries for all platforms
