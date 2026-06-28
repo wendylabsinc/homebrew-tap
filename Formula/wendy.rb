@@ -65,8 +65,10 @@ class Wendy < Formula
       s += <<~EOS
 
         Local Linux containers on macOS are powered by Apple `container`
-        (installed by default with this formula). Before first use, start it once:
+        (installed by default with this formula). Before first use, start its
+        services once:
           container system start
+          container builder start
         To skip installing it, reinstall with:
           brew install --without-container wendylabsinc/tap/wendy
       EOS

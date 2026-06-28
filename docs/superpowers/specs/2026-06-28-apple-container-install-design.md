@@ -95,14 +95,30 @@ container runtime (e.g. running or building a container locally), on macOS:
    - **Missing + non-interactive (e.g. CI):** print an actionable error
      (the exact `brew install container` command) and exit non-zero. Do not
      attempt an unattended install.
-2. **Check service:** if `container` is present but its service is not running,
-   run (or prompt to run) `container system start`.
-3. **Gate on `brew`:** if `brew` is not on `PATH`, do not attempt to run it.
-   Print manual install instructions pointing at
-   https://apple.github.io/container/ instead.
+2. **Check services (also when `container` is already installed):** Apple
+   `container` has two services that must be running before local workflows
+   work:
+   - the system/API service — `container system start`
+   - the image builder — `container builder start`
+
+   Detect whether each is running (e.g. probe `container system status` /
+   `container builder status`, or attempt the operation and catch the
+   "not running" error). For each that is stopped:
+   - **Interactive TTY:** prompt
+     `Apple container's <service> is not running. Start it now ('container <service> start')? [Y/n]`
+     and run the start command on confirmation.
+   - **Non-interactive:** print the exact start command(s) and exit non-zero.
+
+   These start prompts run on every relevant invocation when the service is
+   down, independent of whether we just installed `container` or it was already
+   present — so an existing install with stopped services still gets prompted.
+3. **Gate on `brew`:** if `brew` is not on `PATH`, do not attempt to run the
+   install. Print manual install instructions pointing at
+   https://apple.github.io/container/ instead. (The `container <service> start`
+   commands do not depend on `brew`.)
 
 Non-goals for Part 2: managing `container` upgrades, configuring it beyond
-starting the service, or any behavior on Linux.
+starting the system and builder services, or any behavior on Linux.
 
 ## Testing
 
