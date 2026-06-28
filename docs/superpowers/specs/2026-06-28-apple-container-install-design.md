@@ -83,10 +83,21 @@ Homebrew tooling ever rejects options on this tap, the fallback is:
   suggestion), and
 - Rely on the Part 2 CLI runtime net to install on-demand.
 
-## Part 2 — CLI runtime net (`wendy-agent`, spec only)
+## Part 2 — CLI runtime net (`wendyos` repo)
 
-Implemented in `wendy-agent` in a follow-up PR. When a command needs the local
-container runtime (e.g. running or building a container locally), on macOS:
+**Status: implemented** in the `wendylabsinc/wendyos` repo (the `wendy-agent`
+source) on branch `jo/apple-container-autoinstall`. The logic lives in the
+Apple Container provider's `CheckRequirements`:
+
+- `go/internal/cli/providers/apple_container_setup.go` — install + service-start
+  helpers and the stubbable seams.
+- `go/internal/cli/providers/apple_container.go` — `CheckRequirements` now calls
+  those helpers (install check → version → ensure `system` then `builder`).
+- `go/internal/cli/providers/apple_container_setup_test.go` — unit tests for the
+  install/start/decline/non-interactive branches and brew discovery.
+
+Behavior, when a command needs the local container runtime (e.g. running or
+building a container locally), on macOS:
 
 1. **Check presence:** is `container` on `PATH`?
    - **Missing + interactive TTY:** prompt
