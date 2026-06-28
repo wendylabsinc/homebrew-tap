@@ -3,22 +3,22 @@ class WendyNightly < Formula
   homepage "https://github.com/wendylabsinc/wendy-agent"
 
   bottle do
-    root_url "https://github.com/wendylabsinc/homebrew-tap/releases/download/wendy-nightly-2026.06.28-162828"
+    root_url "https://github.com/wendylabsinc/homebrew-tap/releases/download/wendy-nightly-2026.06.28-164902"
     sha256 cellar: :any_skip_relocation, arm64_tahoe: "0850fe0909991645cd3c65dc2aac9730740dc073a4d8e2f49261ff97e415e468"
   end
 
   # Use pre-built binaries for all platforms
   if OS.mac?
     # macOS ARM64 only (signed and notarized)
-    url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.06.28-162828/wendy-cli-darwin-arm64-2026.06.28-162828.tar.gz"
-    sha256 "f0c8d783be85bc6cbc3c0368508fd7b76211969e7c5a7919b7a81896994f4d75"
+    url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.06.28-164902/wendy-cli-darwin-arm64-2026.06.28-164902.tar.gz"
+    sha256 "fcbda059b009418c2068f445a9e629ddf58dc9ce870d5f7c39080c6faa23dd0b"
   elsif OS.linux?
     if Hardware::CPU.arm?
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.06.28-162828/wendy-cli-linux-arm64-2026.06.28-162828.tar.gz"
-      sha256 "849d2def273ba63a65ae1b506fd96872e080986a9f8bbf30fa99cbc671608880"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.06.28-164902/wendy-cli-linux-arm64-2026.06.28-164902.tar.gz"
+      sha256 "e0ca92ff9a4250f258bde61d102c2ca673f889927548f8055d90bf2927d2abda"
     else
-      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.06.28-162828/wendy-cli-linux-amd64-2026.06.28-162828.tar.gz"
-      sha256 "77a83d70fecba35d63e1545903478796f16805691886b304d1e68b039692b14d"
+      url "https://github.com/wendylabsinc/wendy-agent/releases/download/2026.06.28-164902/wendy-cli-linux-amd64-2026.06.28-164902.tar.gz"
+      sha256 "7ce35c916af99887f2332204aeb2191b67bccfc67508cb5cf24fbc2483c18570"
     end
   end
 
