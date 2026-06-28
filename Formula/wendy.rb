@@ -22,6 +22,12 @@ class Wendy < Formula
     end
   end
 
+  # Apple `container` powers local Linux containers on macOS. Installed by
+  # default; skip with `--without-container` if you only manage remote devices.
+  on_macos do
+    depends_on "container" => :recommended
+  end
+
   conflicts_with "wendy-nightly", because: "both install a `wendy` binary"
 
   def install
@@ -43,7 +49,7 @@ class Wendy < Formula
   end
 
   def caveats
-    <<~EOS
+    s = <<~EOS
       Attention: The Wendy CLI collects anonymous analytics.
       They help us understand which commands are used most, identify common errors, and prioritize improvements.
       Analytics are enabled by default. If you'd like to opt-out, use the following command:
@@ -54,6 +60,19 @@ class Wendy < Formula
       To set up MCP integration with your AI tools:
         wendy mcp setup
     EOS
+
+    if OS.mac?
+      s += <<~EOS
+
+        Local Linux containers on macOS are powered by Apple `container`
+        (installed by default with this formula). Before first use, start it once:
+          container system start
+        To skip installing it, reinstall with:
+          brew install --without-container wendylabsinc/tap/wendy
+      EOS
+    end
+
+    s
   end
 
   test do
