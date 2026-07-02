@@ -29,7 +29,14 @@ class WendyNightly < Formula
     # The macOS CLI links libusb dynamically (cgo/gousb) for Jetson flashing.
     depends_on "libusb"
 
-    depends_on "container" => :recommended
+    # Apple `container` only ships bottles for macOS Tahoe (26) and newer.
+    # Gate the dependency on that — otherwise `brew install wendy-nightly`
+    # aborts on older macOS with "container: no bottle available!" (a Tier 3
+    # config), even though the pre-built wendy binary itself runs fine. wendy
+    # works without `container` via Docker or for remote-only device management.
+    on_tahoe :or_newer do
+      depends_on "container" => :recommended
+    end
   end
 
   conflicts_with "wendy", because: "both install a `wendy` binary"
@@ -68,13 +75,14 @@ class WendyNightly < Formula
     if OS.mac?
       s += <<~EOS
 
-        Local Linux containers on macOS are powered by Apple `container`
-        (installed by default with this formula). Before first use, start its
-        services once:
+        On macOS Tahoe (26) and newer, local Linux containers are powered by
+        Apple `container`, installed by default with this formula there. Before
+        first use, start its services once:
           container system start
           container builder start
         To skip installing it, reinstall with:
           brew install --without-container wendylabsinc/tap/wendy-nightly
+        (`container` has no bottle on older macOS, so it is not installed there.)
       EOS
     end
 
