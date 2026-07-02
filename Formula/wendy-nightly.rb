@@ -25,6 +25,9 @@ class WendyNightly < Formula
   # Apple `container` powers local Linux containers on macOS. Installed by
   # default; skip with `--without-container` if you only manage remote devices.
   on_macos do
+    # The macOS CLI links libusb dynamically (cgo/gousb) for Jetson flashing.
+    depends_on "libusb"
+
     depends_on "container" => :recommended
   end
 
