@@ -4,7 +4,7 @@ class Wendy < Formula
 
   bottle do
     root_url "https://github.com/wendylabsinc/homebrew-tap/releases/download/wendy-2026.07.15-045528"
-    sha256 cellar: :any_skip_relocation, arm64_tahoe: "a823398b4e3dcc435e7ddeb99c5c7c35c1c2c0d3e546afcdd6f3bcb27b2679a2"
+    sha256 cellar: :any_skip_relocation, arm64_tahoe: "e27cdc85ecc49765345428ea9727e43306810fa1fc644ce2f093bc6057752e7b"
   end
 
   # Use pre-built binaries for all platforms
