@@ -1,6 +1,6 @@
 cask "wendy-agent-nightly" do
-  version "2026.07.23-091810"
-  sha256 "e3f76b256bbd4e574d1608f93760b0d8a04a165d5d67efe9b726206b3186b1e2"
+  version "2026.07.24-064853"
+  sha256 "a7928c972408a77ad4fbc4e190754608c25a263f82eed716df2771c95903f39e"
 
   url "https://github.com/wendylabsinc/wendy-agent/releases/download/#{version}/wendy-agent-macos-arm64-#{version}.zip"
   name "Wendy Agent"
