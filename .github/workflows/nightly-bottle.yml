@@ -44,21 +44,27 @@ jobs:
         if: steps.check.outputs.exists == 'false'
         run: |
           brew install --build-bottle wendylabsinc/tap/wendy-nightly
-          brew bottle --no-rebuild wendylabsinc/tap/wendy-nightly
-          # Rename from double-dash to single-dash format
-          for f in wendy-nightly--*.bottle.tar.gz; do
-            mv "$f" "${f/wendy-nightly--/wendy-nightly-}"
-          done
+          # --no-rebuild: always publish a rebuild-0 bottle, whose asset name has
+          # no ".N" suffix. A `rebuild N` line in the formula makes Homebrew
+          # request "...bottle.N.tar.gz", which is never uploaded (404).
+          # --json: emit the bottle block as JSON for the merge step below.
+          brew bottle --no-rebuild --json \
+            --root-url "https://github.com/wendylabsinc/homebrew-tap/releases/download/wendy-nightly-${{ steps.version.outputs.version }}" \
+            wendylabsinc/tap/wendy-nightly
 
-      - name: Update bottle sha256
+      - name: Update bottle block
         if: steps.check.outputs.exists == 'false'
         run: |
-          bottle_file=$(ls wendy-nightly-*.bottle.tar.gz)
-          sha256=$(shasum -a 256 "$bottle_file" | awk '{print $1}')
-          # Update the sha256 in the formula
-          sed -i '' "s/sha256 cellar: :any_skip_relocation, arm64_tahoe: \"[a-f0-9]*\"/sha256 cellar: :any_skip_relocation, arm64_tahoe: \"$sha256\"/" Formula/wendy-nightly.rb
+          # Let Homebrew rewrite the formula's `bottle do` block (root_url,
+          # rebuild, cellar, sha256) from the JSON it just produced, rather than
+          # patching it with sed. The old sed only matched
+          # `cellar: :any_skip_relocation` and silently no-op'd otherwise, leaving
+          # a stale sha256 and `rebuild` in the formula. setup-homebrew symlinks
+          # the tap at this checkout, so the write lands in Formula/ here.
+          brew bottle --merge --write --no-commit --no-all-checks ./wendy-nightly--*.bottle.json
+          git --no-pager diff Formula/wendy-nightly.rb
 
-      - name: Commit updated bottle sha256
+      - name: Commit updated bottle block
         if: steps.check.outputs.exists == 'false'
         run: |
           git config user.name "github-actions[bot]"
@@ -72,6 +78,11 @@ jobs:
       - name: Create release
         if: steps.check.outputs.exists == 'false'
         run: |
+          # Rename from double-dash to single-dash format (matches the URL
+          # Homebrew derives from root_url + formula name + version)
+          for f in wendy-nightly--*.bottle.tar.gz; do
+            mv "$f" "${f/wendy-nightly--/wendy-nightly-}"
+          done
           gh release create "wendy-nightly-${{ steps.version.outputs.version }}" \
             --title "wendy-nightly ${{ steps.version.outputs.version }}" \
             --notes "Nightly bottle for wendy-nightly ${{ steps.version.outputs.version }}" \
