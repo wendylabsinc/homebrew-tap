@@ -54,8 +54,8 @@ class WendyNightly < Formula
     generate_completions_from_executable(bin/"wendy", "completion")
   end
 
-  def post_install
-    quiet_system bin/"wendy", "completion", "install"
+  post_install_steps do
+    run "wendy", args: ["completion", "install"], base: :bin, must_succeed: false, print_stderr: false
   end
 
   def caveats
