@@ -38,6 +38,7 @@ jobs:
         if: steps.check.outputs.exists == 'false'
         uses: Homebrew/actions/setup-homebrew@main
         with:
+          stable: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build bottle

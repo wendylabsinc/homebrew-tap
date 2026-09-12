@@ -24,6 +24,8 @@ jobs:
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@main
         with:
+          # Tap CI defaults to unreleased Homebrew; validate against releases.
+          stable: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache Homebrew Bundler RubyGems
