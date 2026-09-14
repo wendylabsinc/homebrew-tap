@@ -35,7 +35,13 @@ jobs:
           key: ${{ matrix.os }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
           restore-keys: ${{ matrix.os }}-rubygems-
 
-      - run: brew test-bot --only-cleanup-before
+      - name: Clean up runner and keep stable Homebrew
+        run: |
+          brew_repository="$(brew --repository)"
+          brew_revision="$(git -C "$brew_repository" rev-parse HEAD)"
+          brew test-bot --only-cleanup-before
+          # test-bot cleanup checks out main; restore the release selected above.
+          git -C "$brew_repository" checkout --detach "$brew_revision"
 
       - run: brew test-bot --only-setup
 
