@@ -54,33 +54,32 @@ class Wendy < Formula
     generate_completions_from_executable(bin/"wendy", "completion")
   end
 
-  post_install_steps do
-    run "wendy", args: ["completion", "install"], base: :bin, must_succeed: false, print_stderr: false
-  end
-
   def caveats
     s = <<~EOS
-      Attention: The Wendy CLI collects anonymous analytics.
-      They help us understand which commands are used most, identify common errors, and prioritize improvements.
-      Analytics are enabled by default. If you'd like to opt-out, use the following command:
-        wendy analytics disable
-      Or, set the following environment variable:
-        WENDY_ANALYTICS=false
-
+      #{Tty.bold}Get started#{Tty.reset}
       To set up MCP integration with your AI tools:
-        wendy mcp setup
+        #{Tty.bold.cyan}wendy mcp setup#{Tty.reset}
+      To start the interactive walkthrough:
+        #{Tty.bold.cyan}wendy tour#{Tty.reset}
+
+      #{Tty.bold}Anonymous analytics#{Tty.reset}
+      Analytics are enabled by default to help improve commands and fix errors.
+      To opt out, run:
+        #{Tty.bold.cyan}wendy analytics disable#{Tty.reset}
+      Or set the environment variable #{Tty.bold}WENDY_ANALYTICS=false#{Tty.reset}.
     EOS
 
     if OS.mac?
       s += <<~EOS
 
+        #{Tty.bold}Local Linux containers#{Tty.reset}
         On macOS Tahoe (26) and newer, local Linux containers are powered by
         Apple `container`, installed by default with this formula there. Before
         first use, start its services once:
-          container system start
-          container builder start
+          #{Tty.bold.cyan}container system start#{Tty.reset}
+          #{Tty.bold.cyan}container builder start#{Tty.reset}
         To skip installing it, reinstall with:
-          brew install --without-container wendylabsinc/tap/wendy
+          #{Tty.bold.cyan}brew reinstall --without-container wendylabsinc/tap/wendy#{Tty.reset}
         (`container` has no bottle on older macOS, so it is not installed there.)
       EOS
     end
