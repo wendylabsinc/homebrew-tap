@@ -22,20 +22,10 @@ class Wendy < Formula
     end
   end
 
-  # Apple `container` powers local Linux containers on macOS. Installed by
-  # default; skip with `--without-container` if you only manage remote devices.
+  # Install local container runtimes separately so their setup cannot block Wendy.
   on_macos do
     # The macOS CLI links libusb dynamically (cgo/gousb) for Jetson flashing.
     depends_on "libusb"
-
-    # Apple `container` only ships bottles for macOS Tahoe (26) and newer.
-    # Gate the dependency on that — otherwise `brew install wendy` aborts on
-    # older macOS with "container: no bottle available!" (a Tier 3 config),
-    # even though the pre-built wendy binary itself runs fine. wendy works
-    # without `container` via Docker or for remote-only device management.
-    on_tahoe :or_newer do
-      depends_on "container" => :recommended
-    end
   end
 
   conflicts_with "wendy-nightly", because: "both install a `wendy` binary"
@@ -73,14 +63,14 @@ class Wendy < Formula
       s += <<~EOS
 
         #{Tty.bold}Local Linux containers#{Tty.reset}
-        On macOS Tahoe (26) and newer, local Linux containers are powered by
-        Apple `container`, installed by default with this formula there. Before
-        first use, start its services once:
-          #{Tty.bold.cyan}container system start#{Tty.reset}
+        Apple `container` is installed separately and is only needed if you
+        choose it for local Linux containers. It requires Apple Silicon and
+        macOS Tahoe (26) or newer. To install, start, and verify it:
+          #{Tty.bold.cyan}brew install container#{Tty.reset}
+          #{Tty.bold.cyan}container system start --enable-kernel-install#{Tty.reset}
+          #{Tty.bold.cyan}container run --rm alpine echo hello#{Tty.reset}
+        To build images locally, also start the builder:
           #{Tty.bold.cyan}container builder start#{Tty.reset}
-        To skip installing it, reinstall with:
-          #{Tty.bold.cyan}brew reinstall --without-container wendylabsinc/tap/wendy#{Tty.reset}
-        (`container` has no bottle on older macOS, so it is not installed there.)
       EOS
     end
 
