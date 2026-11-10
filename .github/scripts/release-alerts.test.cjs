@@ -1,0 +1,77 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const { collectAlerts } = require('./release-alerts.cjs');
+
+const now = Date.parse('2026-11-10T12:00:00Z');
+const old = '2026-11-10T10:00:00Z';
+const recent = '2026-11-10T11:45:00Z';
+const repo = { owner: 'wendylabsinc', repo: 'homebrew-tap' };
+const context = { repo, payload: {} };
+
+function fixture({ prs = [], missing = false, digest, date = old, apiError } = {}) {
+  const github = {
+    paginate: async () => prs,
+    rest: {
+      pulls: { list() {} },
+      repos: {
+        getContent: async ({ path }) => {
+          const name = path.slice('Formula/'.length, -3);
+          const text = `root_url "https://github.com/wendylabsinc/homebrew-tap/releases/download/${name}-2026.11.10-062304"\nsha256 arm64_tahoe: "${'a'.repeat(64)}"`;
+          return { data: { content: Buffer.from(text).toString('base64') } };
+        },
+        getReleaseByTag: async ({ tag }) => {
+          if (apiError) throw Object.assign(new Error('API unavailable'), { status: 503 });
+          if (missing) throw Object.assign(new Error('Not Found'), { status: 404 });
+          return { data: { draft: false, assets: [{ name: `${tag}.arm64_tahoe.bottle.tar.gz`, state: 'uploaded', digest: digest || `sha256:${'a'.repeat(64)}` }] } };
+        },
+        listCommits: async () => ({ data: [{ commit: { committer: { date } } }] }),
+      },
+    },
+  };
+  return { github, context, now };
+}
+
+test('failed PR runs alert immediately with PR and run links', async () => {
+  const run = { conclusion: 'failure', event: 'pull_request', head_branch: 'release', name: 'brew test-bot', pull_requests: [{ number: 315 }], html_url: 'https://github.com/run/1' };
+  const alerts = await collectAlerts({ context: { repo, payload: { workflow_run: run } } });
+  assert.match(alerts[0], /brew test-bot failure.*#315.*https:\/\/github.com\/run\/1/);
+});
+
+test('successful runs and non-main branch pushes do not alert', async () => {
+  for (const run of [{ conclusion: 'success' }, { conclusion: 'failure', event: 'push', head_branch: 'feature' }]) {
+    assert.deepEqual(await collectAlerts({ context: { repo, payload: { workflow_run: run } } }), []);
+  }
+});
+
+test('timeouts and cancellations are visible', async () => {
+  for (const conclusion of ['timed_out', 'cancelled', 'action_required', 'startup_failure']) {
+    const run = { conclusion, name: 'bottle', event: 'push', head_branch: 'main', html_url: 'run-url' };
+    assert.equal((await collectAlerts({ context: { repo, payload: { workflow_run: run } } })).length, 1);
+  }
+});
+
+test('watchdog reports only old release PRs', async () => {
+  const pr = { title: 'release', labels: [{ name: 'pr-pull' }], created_at: old, html_url: 'pr-url' };
+  const alerts = await collectAlerts(fixture({ prs: [pr, { ...pr, created_at: recent }, { ...pr, labels: [] }] }));
+  assert.equal(alerts.length, 1);
+  assert.match(alerts[0], /waiting over an hour.*pr-url/);
+});
+
+test('missing releases alert after the build grace period', async () => {
+  assert.equal((await collectAlerts(fixture({ missing: true }))).length, 2);
+  assert.deepEqual(await collectAlerts(fixture({ missing: true, date: recent })), []);
+});
+
+test('published bottle checksum mismatches alert', async () => {
+  const alerts = await collectAlerts(fixture({ digest: `sha256:${'b'.repeat(64)}` }));
+  assert.equal(alerts.length, 2);
+  assert.match(alerts[0], /checksum does not match/);
+});
+
+test('healthy releases do not alert', async () => {
+  assert.deepEqual(await collectAlerts(fixture()), []);
+});
+
+test('API failures are not mistaken for healthy or missing releases', async () => {
+  await assert.rejects(collectAlerts(fixture({ apiError: true })), /API unavailable/);
+});

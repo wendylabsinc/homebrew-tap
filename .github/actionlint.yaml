@@ -1,0 +1,2 @@
+config-variables:
+  - CI_SLACK_CHANNEL

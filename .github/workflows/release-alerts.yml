@@ -1,0 +1,69 @@
+name: release alerts
+
+on:
+  workflow_run:
+    workflows: [brew test-bot, brew pr-pull, bottle, nightly bottle]
+    types: [completed]
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Never check out a PR or consume its artifacts in this privileged workflow.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Inspect failed runs, stalled PRs, and missing bottles
+        id: inspect
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { collectAlerts } = require('./.github/scripts/release-alerts.cjs');
+            let alerts;
+            try {
+              alerts = await collectAlerts({ github, context });
+            } catch (error) {
+              alerts = [`Release monitor could not check release health: ${error.message}`];
+              core.setFailed(error.message);
+            }
+            if (!alerts.length && context.eventName === 'workflow_dispatch') {
+              alerts = ['Release monitor test passed. No stalled release PRs or missing bottles.'];
+            }
+            core.setOutput('notify', alerts.length > 0);
+            const text = ['*Homebrew tap release monitor*', ...alerts,
+              `Monitor: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`].join('\n');
+            const fs = require('node:fs');
+            fs.writeFileSync(`${process.env.RUNNER_TEMP}/release-alert.json`, JSON.stringify({
+              channel: process.env.SLACK_CHANNEL, text, unfurl_links: false, unfurl_media: false
+            }));
+        env:
+          SLACK_CHANNEL: ${{ vars.CI_SLACK_CHANNEL }}
+
+      - name: Require Slack configuration
+        if: always()
+        env:
+          SLACK_READY: ${{ secrets.CI_SLACK_BOT_TOKEN != '' && vars.CI_SLACK_CHANNEL != '' }}
+        run: |
+          if [ "$SLACK_READY" != true ]; then
+            echo '::error::Configure CI_SLACK_BOT_TOKEN and CI_SLACK_CHANNEL for this repository. Release alerts must not be silently skipped.'
+            exit 1
+          fi
+
+      - name: Notify Slack
+        if: always() && steps.inspect.outputs.notify == 'true'
+        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.CI_SLACK_BOT_TOKEN }}
+          errors: true
+          payload-file-path: ${{ runner.temp }}/release-alert.json
