@@ -7,14 +7,30 @@ on:
     paths:
       - Formula/wendy-nightly.rb
 
+concurrency:
+  group: tap-bottle-publish
+  cancel-in-progress: false
+
 jobs:
   bottle:
     runs-on: macos-26
     permissions:
       contents: write
     steps:
+      - name: Create publisher token
+        id: publisher
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          app-id: ${{ vars.CLI_PUBLISHER_APP_ID }}
+          private-key: ${{ secrets.CLI_PUBLISHER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: homebrew-tap
+          permission-contents: write
+
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ steps.publisher.outputs.token }}
 
       - name: Extract version
         id: version
@@ -39,7 +55,7 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@main
         with:
           stable: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.publisher.outputs.token }}
 
       - name: Build bottle
         if: steps.check.outputs.exists == 'false'

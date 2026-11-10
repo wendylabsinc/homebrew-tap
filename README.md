@@ -1,6 +1,8 @@
 # Wendy Labs Tap
 
-Before pushing a tap change, run `brew style wendylabsinc/tap`. CI checks the
+Enable the local pre-push check with `git config core.hooksPath .githooks`.
+It runs Homebrew style, actionlint, and the release monitor tests before a push.
+Install `actionlint` with `brew install actionlint` if needed. CI checks the
 entire tap on every branch push before running the macOS installation tests.
 An error in any formula can block every release PR.
 
