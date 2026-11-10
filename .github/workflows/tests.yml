@@ -2,12 +2,30 @@ name: brew test-bot
 
 on:
   push:
-    branches:
-      - main
   pull_request:
 
 jobs:
+  style:
+    name: tap style
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@main
+        with:
+          stable: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check the entire tap before macOS tests
+        run: brew style wendylabsinc/tap
+      - name: Test release monitoring
+        run: node --test .github/scripts/*.test.cjs
+
   test-bot:
+    needs: style
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    timeout-minutes: 45
     strategy:
       matrix:
         # macOS ARM64 only (using pre-built binaries, no bottles needed)

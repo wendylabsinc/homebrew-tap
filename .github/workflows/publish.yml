@@ -4,11 +4,18 @@ on:
   pull_request_target:
     types:
       - labeled
+      - synchronize
+      - reopened
+
+concurrency:
+  group: publish-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
 
 jobs:
   pr-pull:
     if: contains(github.event.pull_request.labels.*.name, 'pr-pull')
     runs-on: ubuntu-22.04
+    timeout-minutes: 40
     permissions:
       actions: read
       checks: read
@@ -35,6 +42,7 @@ jobs:
             RUN_STATUS=$(gh run list \
               --repo "$GITHUB_REPOSITORY" \
               --workflow tests.yml \
+              --event pull_request \
               --commit "$PR_HEAD_SHA" \
               --json status,conclusion \
               --jq '.[0] | "\(.status) \(.conclusion)"' 2>/dev/null || echo "not_found")
@@ -57,6 +65,17 @@ jobs:
           done
           echo "Timed out waiting for tests to complete"
           exit 1
+
+      - name: Verify the PR is still current and approved for publishing
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --json state,headRefOid,labels | \
+            jq --exit-status --arg sha "$PR_HEAD_SHA" \
+              '.state == "OPEN" and .headRefOid == $sha and any(.labels[]; .name == "pr-pull")'
 
       - name: Pull bottles
         env:
