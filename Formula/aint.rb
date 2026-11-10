@@ -1,5 +1,5 @@
 class Aint < Formula
-  desc "Static analyzer catching hardcoded secrets, overscoped cloud IAM, and language footguns"
+  desc "Static analyzer for hardcoded secrets, broad IAM permissions, and code bugs"
   homepage "https://github.com/wendylabsinc/aint"
   url "https://github.com/wendylabsinc/aint/archive/b5587e3c2de3629db93e62dcdfa08d0c93851de0.tar.gz"
   version "2026.08.01-223710"
