@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { collectAlerts } = require('./release-alerts.cjs');
+const { collectAlerts, selectNewAlerts } = require('./release-alerts.cjs');
 
 const now = Date.parse('2026-11-10T12:00:00Z');
 const old = '2026-11-10T10:00:00Z';
@@ -32,9 +32,12 @@ function fixture({ prs = [], missing = false, digest, date = old, apiError } = {
 }
 
 test('failed PR runs alert immediately with PR and run links', async () => {
-  const run = { conclusion: 'failure', event: 'pull_request', head_branch: 'release', name: 'brew test-bot', pull_requests: [{ number: 315 }], html_url: 'https://github.com/run/1' };
-  const alerts = await collectAlerts({ context: { repo, payload: { workflow_run: run } } });
-  assert.match(alerts[0], /brew test-bot failure.*#315.*https:\/\/github.com\/run\/1/);
+  const run = { conclusion: 'failure', event: 'pull_request', head_branch: 'release', head_sha: 'abc', name: 'brew test-bot', pull_requests: [], html_url: 'https://github.com/run/1' };
+  const input = fixture({ prs: [{ number: 315, head: { sha: 'abc' }, html_url: 'https://github.com/pull/315' }] });
+  const alerts = await collectAlerts({ ...input, context: { repo, payload: { workflow_run: run } } });
+  assert.equal(alerts[0].key, 'pr:315:abc');
+  assert.match(alerts[0].text, /brew test-bot failure.*https:\/\/github.com\/run\/1/);
+  assert.match(alerts[0].text, /Affected PR: https:\/\/github.com\/pull\/315/);
 });
 
 test('successful runs and non-main branch pushes do not alert', async () => {
@@ -46,15 +49,15 @@ test('successful runs and non-main branch pushes do not alert', async () => {
 test('timeouts and cancellations are visible', async () => {
   for (const conclusion of ['timed_out', 'cancelled', 'action_required', 'startup_failure']) {
     const run = { conclusion, name: 'bottle', event: 'push', head_branch: 'main', html_url: 'run-url' };
-    assert.equal((await collectAlerts({ context: { repo, payload: { workflow_run: run } } })).length, 1);
+    assert.equal((await collectAlerts({ ...fixture(), context: { repo, payload: { workflow_run: run } } })).length, 1);
   }
 });
 
 test('watchdog reports only old release PRs', async () => {
-  const pr = { title: 'release', labels: [{ name: 'pr-pull' }], created_at: old, html_url: 'pr-url' };
+  const pr = { number: 315, head: { sha: 'abc' }, title: 'release', labels: [{ name: 'pr-pull' }], created_at: old, html_url: 'pr-url' };
   const alerts = await collectAlerts(fixture({ prs: [pr, { ...pr, created_at: recent }, { ...pr, labels: [] }] }));
   assert.equal(alerts.length, 1);
-  assert.match(alerts[0], /waiting over an hour.*pr-url/);
+  assert.match(alerts[0].text, /waiting over an hour.*pr-url/);
 });
 
 test('missing releases alert after the build grace period', async () => {
@@ -65,7 +68,7 @@ test('missing releases alert after the build grace period', async () => {
 test('published bottle checksum mismatches alert', async () => {
   const alerts = await collectAlerts(fixture({ digest: `sha256:${'b'.repeat(64)}` }));
   assert.equal(alerts.length, 2);
-  assert.match(alerts[0], /checksum does not match/);
+  assert.match(alerts[0].text, /checksum does not match/);
 });
 
 test('healthy releases do not alert', async () => {
@@ -74,4 +77,38 @@ test('healthy releases do not alert', async () => {
 
 test('API failures are not mistaken for healthy or missing releases', async () => {
   await assert.rejects(collectAlerts(fixture({ apiError: true })), /API unavailable/);
+});
+
+test('validation failure, publish failure, and hourly stalled PR reminders deduplicate', async () => {
+  const pr = { number: 315, head: { sha: 'abc' }, title: 'release', labels: [{ name: 'pr-pull' }], created_at: old, html_url: 'pr-url' };
+  const input = fixture({ prs: [pr] });
+  const run = { conclusion: 'failure', name: 'brew test-bot', event: 'pull_request', head_branch: 'release', head_sha: 'abc', html_url: 'run-url' };
+  const first = await collectAlerts({ ...input, context: { repo, payload: { workflow_run: run } } });
+  const delivered = { [first[0].key]: old };
+  const publish = await collectAlerts({ ...input, context: { repo, payload: { workflow_run: { ...run, name: 'brew pr-pull', event: 'pull_request_target' } } } });
+  assert.deepEqual(selectNewAlerts(publish, delivered), []);
+  assert.deepEqual(selectNewAlerts(await collectAlerts(input), delivered), []);
+  pr.head.sha = 'new-commit';
+  assert.equal(selectNewAlerts(await collectAlerts(input), delivered).length, 1);
+});
+
+test('failed bottle run and missing-asset watchdog deduplicate', async () => {
+  const run = { conclusion: 'failure', name: 'bottle', event: 'push', head_branch: 'main', head_sha: 'abc', html_url: 'run-url' };
+  const failure = await collectAlerts({ ...fixture(), context: { repo, payload: { workflow_run: run } } });
+  const delivered = { [failure[0].key]: old };
+  const remaining = selectNewAlerts(await collectAlerts(fixture({ missing: true })), delivered);
+  assert.equal(remaining.length, 1);
+  assert.match(remaining[0].key, /wendy-nightly/);
+});
+
+test('late failures from outdated or closed PRs do not alert', async () => {
+  const run = { conclusion: 'failure', name: 'brew test-bot', event: 'pull_request', head_branch: 'release', head_sha: 'old-commit' };
+  for (const prs of [[], [{ number: 315, head: { sha: 'new-commit' } }]]) {
+    assert.deepEqual(await collectAlerts({ ...fixture({ prs }), context: { repo, payload: { workflow_run: run } } }), []);
+  }
+});
+
+test('undelivered incidents remain eligible for retry', () => {
+  const alert = { key: 'pr:315:abc', text: 'failure' };
+  assert.deepEqual(selectNewAlerts([alert], {}), [alert]);
 });

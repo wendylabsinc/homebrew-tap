@@ -7,6 +7,17 @@ on:
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:
+    inputs:
+      test_notification:
+        description: Send a one-time Slack delivery test even when releases are healthy
+        type: boolean
+        default: false
+
+# Serialize the read/send/save sequence so simultaneous failures cannot duplicate
+# an alert. The hourly watchdog also catches releases whose event was missed.
+concurrency:
+  group: release-alerts
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -23,31 +34,44 @@ jobs:
           ref: main
           persist-credentials: false
 
+      - name: Restore delivered incidents
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/release-alert-state.json
+          key: release-alerts-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: release-alerts-v1-
+
       - name: Inspect failed runs, stalled PRs, and missing bottles
         id: inspect
         uses: actions/github-script@v7
         with:
           script: |
-            const { collectAlerts } = require('./.github/scripts/release-alerts.cjs');
+            const { collectAlerts, selectNewAlerts } = require('./.github/scripts/release-alerts.cjs');
+            const fs = require('node:fs');
+            const statePath = `${process.env.RUNNER_TEMP}/release-alert-state.json`;
+            const notified = fs.existsSync(statePath) ? JSON.parse(fs.readFileSync(statePath, 'utf8')) : {};
             let alerts;
             try {
               alerts = await collectAlerts({ github, context });
             } catch (error) {
-              alerts = [`Release monitor could not check release health: ${error.message}`];
+              alerts = [{ key: `monitor:${error.message}`, text: `Release monitor could not check release health: ${error.message}` }];
               core.setFailed(error.message);
             }
-            if (!alerts.length && context.eventName === 'workflow_dispatch') {
-              alerts = ['Release monitor test passed. No stalled release PRs or missing bottles.'];
+            if (process.env.TEST_NOTIFICATION === 'true') {
+              alerts.push({ key: `test:${context.runId}:${process.env.GITHUB_RUN_ATTEMPT}`, text: 'Release monitor Slack delivery test.' });
             }
+            alerts = selectNewAlerts(alerts, notified);
             core.setOutput('notify', alerts.length > 0);
-            const text = ['*Homebrew tap release monitor*', ...alerts,
+            const text = ['*Homebrew tap release monitor*', ...alerts.map(alert => alert.text),
               `Monitor: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`].join('\n');
-            const fs = require('node:fs');
             fs.writeFileSync(`${process.env.RUNNER_TEMP}/release-alert.json`, JSON.stringify({
               channel: process.env.SLACK_CHANNEL, text, unfurl_links: false, unfurl_media: false
             }));
+            for (const alert of alerts) notified[alert.key] = new Date().toISOString();
+            fs.writeFileSync(statePath, JSON.stringify(notified));
         env:
           SLACK_CHANNEL: ${{ vars.CI_SLACK_CHANNEL }}
+          TEST_NOTIFICATION: ${{ github.event_name == 'workflow_dispatch' && inputs.test_notification }}
 
       - name: Require Slack configuration
         if: always()
@@ -60,6 +84,7 @@ jobs:
           fi
 
       - name: Notify Slack
+        id: slack
         if: always() && steps.inspect.outputs.notify == 'true'
         uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
         with:
@@ -67,3 +92,11 @@ jobs:
           token: ${{ secrets.CI_SLACK_BOT_TOKEN }}
           errors: true
           payload-file-path: ${{ runner.temp }}/release-alert.json
+
+      # A failed Slack request must remain eligible for the next attempt.
+      - name: Remember successfully delivered incidents
+        if: always() && steps.slack.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/release-alert-state.json
+          key: release-alerts-v1-${{ github.run_id }}-${{ github.run_attempt }}

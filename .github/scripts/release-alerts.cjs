@@ -8,8 +8,27 @@ async function collectAlerts({ github, context, now = Date.now() }) {
     if (!FAILURE_STATES.has(run.conclusion)) return [];
     // Branch pushes run the early lint check too. Only alert for main and PRs.
     if (run.event === 'push' && run.head_branch !== 'main') return [];
-    const prs = (run.pull_requests || []).map(pr => `#${pr.number}`).join(', ');
-    return [`${run.name} ${run.conclusion} on ${run.head_branch}${prs ? ` (${prs})` : ''}: ${run.html_url}`];
+    const text = `${run.name} ${run.conclusion} on ${run.head_branch}: ${run.html_url}`;
+    if (['pull_request', 'pull_request_target'].includes(run.event)) {
+      // workflow_run.pull_requests is often empty. Look up the current PR so
+      // validation, publishing, and the hourly watchdog share one incident key.
+      const prs = await github.paginate(github.rest.pulls.list, {
+        ...repo, state: 'open', per_page: 100,
+        head: `${run.head_repository?.owner.login || repo.owner}:${run.head_branch}`,
+      });
+      return prs.filter(pr => pr.head.sha === run.head_sha).map(pr => ({
+        key: `pr:${pr.number}:${pr.head.sha}`,
+        text: `${text}\nAffected PR: ${pr.html_url}`,
+      }));
+    }
+    if (['bottle', 'nightly bottle'].includes(run.name)) {
+      const name = run.name === 'bottle' ? 'wendy' : 'wendy-nightly';
+      const { data: file } = await github.rest.repos.getContent({ ...repo, path: `Formula/${name}.rb`, ref: run.head_sha });
+      const tag = Buffer.from(file.content, 'base64').toString().match(/releases\/download\/([^\"]+)"/)?.[1];
+      if (!tag) throw new Error(`No bottle release URL for ${name}`);
+      return [{ key: `bottle:${tag}`, text }];
+    }
+    return [{ key: `run:${run.name}:${run.head_sha}`, text }];
   }
 
   const alerts = [];
@@ -17,7 +36,7 @@ async function collectAlerts({ github, context, now = Date.now() }) {
   for (const pr of prs) {
     if (!pr.labels.some(label => label.name === 'pr-pull')) continue;
     if (now - Date.parse(pr.created_at) < GRACE_MS) continue;
-    alerts.push(`Release PR has been waiting over an hour: ${pr.title} ${pr.html_url}`);
+    alerts.push({ key: `pr:${pr.number}:${pr.head.sha}`, text: `Release PR has been waiting over an hour: ${pr.title} ${pr.html_url}` });
   }
 
   // Check the published artifact too: a green merge is not a completed release.
@@ -44,9 +63,13 @@ async function collectAlerts({ github, context, now = Date.now() }) {
     const { data: commits } = await github.rest.repos.listCommits({ ...repo, path, sha: 'main', per_page: 1 });
     if (!commits[0]) throw new Error(`No commit found for ${path}`);
     if (now - Date.parse(commits[0].commit.committer.date) < GRACE_MS) continue;
-    alerts.push(`${problem}: https://github.com/${repo.owner}/${repo.repo}/releases/tag/${tag}`);
+    alerts.push({ key: `bottle:${tag}`, text: `${problem}: https://github.com/${repo.owner}/${repo.repo}/releases/tag/${tag}` });
   }
   return alerts;
 }
 
-module.exports = { collectAlerts };
+function selectNewAlerts(alerts, notified = {}) {
+  return alerts.filter(alert => !Object.hasOwn(notified, alert.key));
+}
+
+module.exports = { collectAlerts, selectNewAlerts };
