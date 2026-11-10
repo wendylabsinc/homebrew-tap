@@ -9,9 +9,12 @@ An error in any formula can block every release PR.
 Release validation and publishing failures post to Slack through the organization
 secret `CI_SLACK_BOT_TOKEN` and variable `CI_SLACK_CHANNEL`. The hourly release
 monitor also reports `pr-pull` PRs waiting over an hour and missing or mismatched
-bottle assets after a one-hour build allowance. Run the `release alerts` workflow
-manually to check release health and verify Slack delivery. Missing notification
-configuration fails the monitor instead of silently skipping the alert.
+bottle assets after a one-hour build allowance. Each PR revision or bottle version
+alerts once, even if both validation and publishing fail or the hourly monitor
+finds it again. Successful runs stay quiet. Run `release alerts` manually to check
+release health; select `test_notification` only for an explicit Slack delivery
+test. Missing notification configuration fails the monitor instead of silently
+skipping the alert.
 
 ```sh
 brew install wendylabsinc/tap/wendy
