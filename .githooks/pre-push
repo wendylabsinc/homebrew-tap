@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+
+cd "$(git rev-parse --show-toplevel)"
+# Explicit files also work when this checkout is outside Homebrew's tap folder.
+brew style Formula/*.rb Casks/*.rb README.md
+actionlint
+node --test .github/scripts/*.test.cjs

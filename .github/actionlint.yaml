@@ -1,2 +1,3 @@
 config-variables:
   - CI_SLACK_CHANNEL
+  - CLI_PUBLISHER_APP_ID
