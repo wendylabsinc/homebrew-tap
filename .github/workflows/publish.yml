@@ -98,8 +98,18 @@ jobs:
         with:
           branch: main
 
+      # pr-pull rebases the commits, so GitHub may leave the original PR open.
+      # The publisher app's contents-only token cannot manage PR state.
+      - name: Close the published PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { closePublishedPr } = require('./.github/scripts/close-published-pr.cjs');
+            await closePublishedPr({ github, context });
+
       - name: Delete branch
         if: github.event.pull_request.head.repo.fork == false
         env:
           BRANCH: ${{ github.event.pull_request.head.ref }}
-        run: git push --delete origin "$BRANCH"
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: git push --force-with-lease="refs/heads/$BRANCH:$PR_HEAD_SHA" --delete origin "$BRANCH"
