@@ -64,11 +64,19 @@ test('successful publishing alerts immediately if its PR remains open', async ()
   assert.deepEqual(selectNewAlerts(later, { [alerts[0].key]: recent }), []);
 });
 
-test('successful publishing does not alert for closed or superseded PRs', async () => {
+test('successful publishing does not alert once its PR is closed', async () => {
   const run = { conclusion: 'success', name: 'brew pr-pull', event: 'pull_request_target', head_branch: 'release', head_sha: 'abc' };
-  for (const prs of [[], [{ number: 320, head: { sha: 'newer' } }]]) {
-    assert.deepEqual(await collectAlerts({ ...fixture({ prs }), context: { repo, payload: { workflow_run: run } } }), []);
-  }
+  assert.deepEqual(await collectAlerts({ ...fixture({ prs: [] }), context: { repo, payload: { workflow_run: run } } }), []);
+});
+
+test('successful publishing alerts for its PR even after a newer push', async () => {
+  const run = { conclusion: 'success', name: 'brew pr-pull', event: 'pull_request_target', head_branch: 'release', head_sha: 'abc', html_url: 'run-url' };
+  const prs = [{ number: 320, head: { sha: 'newer' }, html_url: 'pr-url' }];
+  const alerts = await collectAlerts({ ...fixture({ prs }), context: { repo, payload: { workflow_run: run } } });
+  assert.equal(alerts.length, 1);
+  // Keyed to the published revision, so the newer revision can still alert on its own.
+  assert.equal(alerts[0].key, 'pr:320:abc');
+  assert.match(alerts[0].text, /reported success.*still open/);
 });
 
 test('timeouts and cancellations are visible', async () => {

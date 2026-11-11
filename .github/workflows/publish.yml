@@ -87,11 +87,18 @@ jobs:
             jq --exit-status --arg sha "$PR_HEAD_SHA" \
               '.state == "OPEN" and .headRefOid == $sha and any(.labels[]; .name == "pr-pull")'
 
+      # pr-pull adds the PR's commits to the workspace. Copy the cleanup script
+      # from the base branch first so this privileged job never runs PR code.
+      - name: Stage cleanup script from the base branch
+        run: cp .github/scripts/close-published-pr.cjs "$RUNNER_TEMP/"
+
+      # Pin pr-pull to the revision verified above, not whatever the PR head is now.
       - name: Pull bottles
         env:
           HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PULL_REQUEST: ${{ github.event.pull_request.number }}
-        run: brew pr-pull --debug --tap="$GITHUB_REPOSITORY" "$PULL_REQUEST"
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: brew pr-pull --debug --tap="$GITHUB_REPOSITORY" --head-sha="$PR_HEAD_SHA" "$PULL_REQUEST"
 
       - name: Push commits
         uses: Homebrew/actions/git-try-push@main
@@ -100,15 +107,21 @@ jobs:
 
       # pr-pull rebases the commits, so GitHub may leave the original PR open.
       # The publisher app's contents-only token cannot manage PR state.
+      # The release is already on main, so a cleanup failure must not fail the
+      # run: release alerts then reports the open PR as published, not as a
+      # publishing failure that invites a retry.
       - name: Close the published PR
+        id: close
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
+          retries: 3
           script: |
-            const { closePublishedPr } = require('./.github/scripts/close-published-pr.cjs');
+            const { closePublishedPr } = require(`${process.env.RUNNER_TEMP}/close-published-pr.cjs`);
             await closePublishedPr({ github, context });
 
       - name: Delete branch
-        if: github.event.pull_request.head.repo.fork == false
+        if: steps.close.outcome == 'success' && github.event.pull_request.head.repo.fork == false
         env:
           BRANCH: ${{ github.event.pull_request.head.ref }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
