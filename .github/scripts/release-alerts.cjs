@@ -5,7 +5,9 @@ async function collectAlerts({ github, context, now = Date.now() }) {
   const repo = context.repo;
   const run = context.payload.workflow_run;
   if (run) {
-    if (!FAILURE_STATES.has(run.conclusion)) return [];
+    const published = run.name === 'brew pr-pull' && run.conclusion === 'success'
+      && run.event === 'pull_request_target';
+    if (!published && !FAILURE_STATES.has(run.conclusion)) return [];
     // Branch pushes run the early lint check too. Only alert for main and PRs.
     if (run.event === 'push' && run.head_branch !== 'main') return [];
     const text = `${run.name} ${run.conclusion} on ${run.head_branch}: ${run.html_url}`;
@@ -16,9 +18,14 @@ async function collectAlerts({ github, context, now = Date.now() }) {
         ...repo, state: 'open', per_page: 100,
         head: `${run.head_repository?.owner.login || repo.owner}:${run.head_branch}`,
       });
-      return prs.filter(pr => pr.head.sha === run.head_sha).map(pr => ({
-        key: `pr:${pr.number}:${pr.head.sha}`,
-        text: `${text}\nAffected PR: ${pr.html_url}`,
+      // A published revision is on main even if the PR has moved on since, so
+      // its open PR is still an incident. Failures only matter for the current revision.
+      const affected = published ? prs : prs.filter(pr => pr.head.sha === run.head_sha);
+      return affected.map(pr => ({
+        key: `pr:${pr.number}:${run.head_sha}`,
+        text: published
+          ? `Publishing reported success, but the release PR is still open. The release may already be available; check PR cleanup before retrying.\nAffected PR: ${pr.html_url}\nPublishing run: ${run.html_url}`
+          : `${text}\nAffected PR: ${pr.html_url}`,
       }));
     }
     if (['bottle', 'nightly bottle'].includes(run.name)) {

@@ -11,7 +11,12 @@ secret `CI_SLACK_BOT_TOKEN` and variable `CI_SLACK_CHANNEL`. The hourly release
 monitor also reports `pr-pull` PRs waiting over an hour and missing or mismatched
 bottle assets after a one-hour build allowance. Each PR revision or bottle version
 alerts once, even if both validation and publishing fail or the hourly monitor
-finds it again. Successful runs stay quiet. Run `release alerts` manually to check
+finds it again. A successful publishing run also alerts immediately if its PR
+remains open; other successful runs stay quiet. Publishing pins `brew pr-pull`
+to the verified PR revision and explicitly closes the PR after pushing the
+rebased commits, before deleting its branch. If closing fails, the run still
+succeeds (the release is on main) and the open-PR alert fires instead.
+Run `release alerts` manually to check
 release health; select `test_notification` only for an explicit Slack delivery
 test. Missing notification configuration fails the monitor instead of silently
 skipping the alert.

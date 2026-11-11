@@ -46,6 +46,39 @@ test('successful runs and non-main branch pushes do not alert', async () => {
   }
 });
 
+test('successful publishing alerts immediately if its PR remains open', async () => {
+  const pr = { number: 320, head: { sha: 'abc' }, title: 'release', labels: [{ name: 'pr-pull' }], created_at: recent, html_url: 'pr-url' };
+  const input = fixture({ prs: [pr] });
+  const run = { conclusion: 'success', name: 'brew pr-pull', event: 'pull_request_target', head_branch: 'release', head_sha: 'abc', html_url: 'run-url', pull_requests: [] };
+  let query;
+  input.github.paginate = async (_method, params) => { query = params; return [pr]; };
+  const alerts = await collectAlerts({ ...input, context: { repo, payload: { workflow_run: run } } });
+  assert.equal(alerts.length, 1);
+  assert.equal(query.state, 'open');
+  assert.equal(query.head, 'wendylabsinc:release');
+  assert.equal(alerts[0].key, 'pr:320:abc');
+  assert.match(alerts[0].text, /reported success.*still open/);
+  assert.match(alerts[0].text, /pr-url/);
+  assert.match(alerts[0].text, /run-url/);
+  const later = await collectAlerts({ ...fixture({ prs: [{ ...pr, created_at: old }] }) });
+  assert.deepEqual(selectNewAlerts(later, { [alerts[0].key]: recent }), []);
+});
+
+test('successful publishing does not alert once its PR is closed', async () => {
+  const run = { conclusion: 'success', name: 'brew pr-pull', event: 'pull_request_target', head_branch: 'release', head_sha: 'abc' };
+  assert.deepEqual(await collectAlerts({ ...fixture({ prs: [] }), context: { repo, payload: { workflow_run: run } } }), []);
+});
+
+test('successful publishing alerts for its PR even after a newer push', async () => {
+  const run = { conclusion: 'success', name: 'brew pr-pull', event: 'pull_request_target', head_branch: 'release', head_sha: 'abc', html_url: 'run-url' };
+  const prs = [{ number: 320, head: { sha: 'newer' }, html_url: 'pr-url' }];
+  const alerts = await collectAlerts({ ...fixture({ prs }), context: { repo, payload: { workflow_run: run } } });
+  assert.equal(alerts.length, 1);
+  // Keyed to the published revision, so the newer revision can still alert on its own.
+  assert.equal(alerts[0].key, 'pr:320:abc');
+  assert.match(alerts[0].text, /reported success.*still open/);
+});
+
 test('timeouts and cancellations are visible', async () => {
   for (const conclusion of ['timed_out', 'cancelled', 'action_required', 'startup_failure']) {
     const run = { conclusion, name: 'bottle', event: 'push', head_branch: 'main', html_url: 'run-url' };
